@@ -26,16 +26,15 @@ sealed class ToolResult {
 
 object ToolProcessor {
 
-    private val wordRegex = Regex("\\b\\w+\\b")
-
     fun process(tool: Tool, input: String, params: ParamMap = emptyMap()): ToolResult {
         return try {
             when (tool.toolType) {
                 ToolType.TEXT_PROCESSOR -> processText(tool.id, input, params)
                 ToolType.GENERATOR -> processGenerator(tool.id, params)
                 ToolType.CALCULATOR -> processCalculator(tool.id, params)
+                ToolType.DATA_PROCESSOR -> processData(tool.id, input)
                 ToolType.QR_GENERATOR -> ToolResult.Text("QR generated")
-                ToolType.BUSINESS_TEMPLATE -> ToolResult.Text("Business document preview not shown")
+                ToolType.BUSINESS_TEMPLATE -> processBusinessTemplate(tool.id, params)
                 else -> ToolResult.Text("Processing not yet implemented for ${tool.title}")
             }
         } catch (e: Exception) {
@@ -52,6 +51,8 @@ object ToolProcessor {
                     "lower" -> input.lowercase()
                     "title" -> input.split(" ").joinToString(" ") { it.replaceFirstChar { c -> c.uppercase() } }
                     "camel" -> toCamelCase(input)
+                    "snake" -> input.replace(Regex("\\s+"), "_").lowercase()
+                    "kebab" -> input.replace(Regex("\\s+"), "-").lowercase()
                     else -> input.uppercase()
                 }
                 ToolResult.Text(out)
@@ -68,9 +69,12 @@ object ToolProcessor {
                 val other = params["other"] ?: ""
                 ToolResult.Text("Added: ${input.length} chars vs ${other.length} chars")
             }
+            "text_sorter" -> ToolResult.Text(input.lines().sorted().joinToString("\n"))
+            "text_deduplicator" -> ToolResult.Text(input.lines().distinct().joinToString("\n"))
             "markdown_to_html" -> ToolResult.Text(markdownToHtml(input))
             "json_formatter" -> ToolResult.Text(formatJson(input))
-            "json_minifier" -> ToolResult.Text(minifyJson(input))
+            "json_minifier" -> ToolResult.Text(JSONObject(input).toString())
+            "json_validator" -> ToolResult.Text(validateJson(input))
             "base64_encoder" -> ToolResult.Text(android.util.Base64.encodeToString(input.toByteArray(), android.util.Base64.DEFAULT))
             "base64_decoder" -> {
                 val bytes = android.util.Base64.decode(input, android.util.Base64.DEFAULT)
@@ -78,12 +82,16 @@ object ToolProcessor {
             }
             "url_encoder" -> ToolResult.Text(java.net.URLEncoder.encode(input, "UTF-8"))
             "url_decoder" -> ToolResult.Text(java.net.URLDecoder.decode(input, "UTF-8"))
+            "html_encoder" -> ToolResult.Text(input.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;"))
+            "html_decoder" -> ToolResult.Text(input.replace("&lt;", "<").replace("&gt;", ">").replace("&amp;", "&"))
             "hash_generator" -> ToolResult.Text("MD5: ${hash(input, "MD5")}\nSHA-256: ${hash(input, "SHA-256")}")
             "jwt_decoder" -> ToolResult.Text(decodeJwt(input))
             "password_strength" -> ToolResult.Text(passwordStrength(input))
             "pii_detector" -> ToolResult.Text(detectPii(input))
             "secret_scanner" -> ToolResult.Text(scanSecrets(input))
             "link_cleaner" -> ToolResult.Text(cleanUrl(input))
+            "regex_tester" -> ToolResult.Text(testRegex(input, params["pattern"] ?: ""))
+            "cron_explainer" -> ToolResult.Text(explainCron(input))
             else -> ToolResult.Text(input)
         }
     }
@@ -94,7 +102,22 @@ object ToolProcessor {
             "lorem_ipsum" -> ToolResult.Text(generateLorem(params["paragraphs"]?.toIntOrNull() ?: 2))
             "password_generator" -> ToolResult.Text(generatePassword(params["length"]?.toIntOrNull() ?: 16))
             "color_palette" -> ToolResult.Text(generatePalette())
+            "cron_generator" -> ToolResult.Text(generateCron(params))
+            "random_number" -> {
+                val min = params["min"]?.toIntOrNull() ?: 0
+                val max = params["max"]?.toIntOrNull() ?: 100
+                ToolResult.Text((min..max).random().toString())
+            }
             else -> ToolResult.Text("Generated output")
+        }
+    }
+
+    private fun processData(toolId: String, input: String): ToolResult {
+        return when (toolId) {
+            "csv_to_json" -> ToolResult.Text(csvToJson(input))
+            "json_to_csv" -> ToolResult.Text(jsonToCsv(input))
+            "csv_viewer" -> ToolResult.Text(csvToJson(input))
+            else -> ToolResult.Text(input)
         }
     }
 
@@ -179,10 +202,63 @@ object ToolProcessor {
                     val count = kotlin.math.ceil(load / panel).toInt()
                     ToolResult.Text("Panels needed: $count")
                 }
+                "hvac_sizing" -> {
+                    val area = params["area"]?.toDoubleOrNull() ?: 0.0
+                    val btu = area * 25
+                    ToolResult.Text("Cooling load: ${btu.roundToInt()} BTU/hr (≈ ${"%.2f".format(btu / 12000)} tons)")
+                }
+                "roofing_calculator" -> {
+                    val area = params["area"]?.toDoubleOrNull() ?: 0.0
+                    val bundles = kotlin.math.ceil(area / 32.0).toInt()
+                    ToolResult.Text("Shingle bundles needed: $bundles")
+                }
+                "flooring_estimator" -> {
+                    val area = params["area"]?.toDoubleOrNull() ?: 0.0
+                    val box = params["box"]?.toDoubleOrNull() ?: 20.0
+                    val boxes = kotlin.math.ceil(area / box).toInt()
+                    ToolResult.Text("Boxes needed: $boxes")
+                }
+                "land_area_converter" -> {
+                    val sqft = params["sqft"]?.toDoubleOrNull() ?: 0.0
+                    val sqm = sqft * 0.092903
+                    val acre = sqft / 43560
+                    ToolResult.Text("Sq ft: $sqft\nSq m: ${"%.2f".format(sqm)}\nAcre: ${"%.4f".format(acre)}")
+                }
+                "waste_allowance" -> {
+                    val qty = params["qty"]?.toDoubleOrNull() ?: 0.0
+                    val allowance = params["allowance"]?.toDoubleOrNull() ?: 5.0
+                    val total = qty * (1 + allowance / 100)
+                    ToolResult.Text("Total with ${allowance}% waste: ${"%.2f".format(total)}")
+                }
+                "material_quantity" -> {
+                    val length = params["length"]?.toDoubleOrNull() ?: 0.0
+                    val width = params["width"]?.toDoubleOrNull() ?: 0.0
+                    val depth = params["depth"]?.toDoubleOrNull() ?: 0.0
+                    val volume = length * width * depth
+                    ToolResult.Text("Material volume: ${"%.3f".format(volume)} m³")
+                }
+                "construction_cost" -> {
+                    val area = params["area"]?.toDoubleOrNull() ?: 0.0
+                    val rate = params["rate"]?.toDoubleOrNull() ?: 1500.0
+                    val cost = area * rate
+                    ToolResult.Text("Estimated cost: ${"%.2f".format(cost)}")
+                }
                 else -> ToolResult.Text("Result: ${params.values.joinToString()}")
             }
         } catch (e: Exception) {
             ToolResult.Error(e.localizedMessage ?: "Calculation error")
+        }
+    }
+
+    private fun processBusinessTemplate(toolId: String, params: ParamMap): ToolResult {
+        return when (toolId) {
+            "invoice_generator" -> ToolResult.Text(generateInvoice(params))
+            "receipt_generator" -> ToolResult.Text(generateReceipt(params))
+            "business_card" -> ToolResult.Text(generateBusinessCard(params))
+            "price_list" -> ToolResult.Text(generatePriceList(params))
+            "certificate_generator" -> ToolResult.Text(generateCertificate(params))
+            "id_card_generator" -> ToolResult.Text(generateIdCard(params))
+            else -> ToolResult.Text("Business template generated")
         }
     }
 
@@ -218,8 +294,93 @@ object ToolProcessor {
         }
     }
 
-    private fun minifyJson(input: String): String {
-        return JSONObject(input).toString()
+    private fun validateJson(input: String): String {
+        return try {
+            JSONObject(input)
+            "Valid JSON object"
+        } catch (_: Exception) {
+            try {
+                JSONArray(input)
+                "Valid JSON array"
+            } catch (_: Exception) {
+                "Invalid JSON"
+            }
+        }
+    }
+
+    private fun csvToJson(csv: String): String {
+        val lines = csv.lines().filter { it.isNotBlank() }
+        if (lines.size < 2) return "[]"
+        val headers = lines.first().split(",").map { it.trim() }
+        val rows = lines.drop(1).map { line ->
+            val values = line.split(",").map { it.trim() }
+            JSONObject().apply {
+                headers.forEachIndexed { index, header -> put(header, values.getOrNull(index) ?: "") }
+            }
+        }
+        return JSONArray(rows).toString(2)
+    }
+
+    private fun jsonToCsv(json: String): String {
+        val array = JSONArray(json)
+        if (array.length() == 0) return ""
+        val keys = array.getJSONObject(0).keys().asSequence().toList()
+        val sb = StringBuilder()
+        sb.appendLine(keys.joinToString(","))
+        for (i in 0 until array.length()) {
+            val obj = array.getJSONObject(i)
+            sb.appendLine(keys.joinToString(",") { obj.optString(it, "") })
+        }
+        return sb.toString()
+    }
+
+    private fun testRegex(input: String, pattern: String): String {
+        return try {
+            val matches = Regex(pattern).findAll(input).map { it.value }.toList()
+            "Matches: ${matches.size}\n${matches.joinToString("\n")}"
+        } catch (e: Exception) {
+            "Invalid regex: ${e.message}"
+        }
+    }
+
+    private fun explainCron(cron: String): String {
+        val parts = cron.split(" ")
+        return if (parts.size == 5) {
+            "Minute: ${parts[0]}, Hour: ${parts[1]}, Day: ${parts[2]}, Month: ${parts[3]}, Weekday: ${parts[4]}"
+        } else "Cron expression should have 5 space-separated fields."
+    }
+
+    private fun generateCron(params: ParamMap): String {
+        val minute = params["minute"] ?: "0"
+        val hour = params["hour"] ?: "*"
+        val day = params["day"] ?: "*"
+        val month = params["month"] ?: "*"
+        val weekday = params["weekday"] ?: "*"
+        return "$minute $hour $day $month $weekday"
+    }
+
+    private fun generateInvoice(params: ParamMap): String {
+        return "INVOICE\nFrom: ${params["from"] ?: "OFA User"}\nTo: ${params["to"] ?: "Customer"}\nAmount: ${params["amount"] ?: "0"}\nThank you for your business."
+    }
+
+    private fun generateReceipt(params: ParamMap): String {
+        return "RECEIPT\nReceived from: ${params["from"] ?: "Customer"}\nAmount: ${params["amount"] ?: "0"}\nDate: ${SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())}"
+    }
+
+    private fun generateBusinessCard(params: ParamMap): String {
+        return "${params["name"] ?: "Name"}\n${params["title"] ?: ""}\n${params["phone"] ?: ""}\n${params["email"] ?: ""}"
+    }
+
+    private fun generatePriceList(params: ParamMap): String {
+        return "PRICE LIST\n${params["items"] ?: ""}"
+    }
+
+    private fun generateCertificate(params: ParamMap): String {
+        return "CERTIFICATE\nThis certifies that ${params["name"] ?: "____"} has completed ${params["course"] ?: "the course"}."
+    }
+
+    private fun generateIdCard(params: ParamMap): String {
+        return "ID CARD\nName: ${params["name"] ?: ""}\nID: ${params["id"] ?: ""}\nExpires: ${params["expires"] ?: ""}"
     }
 
     private fun hash(input: String, algo: String): String {

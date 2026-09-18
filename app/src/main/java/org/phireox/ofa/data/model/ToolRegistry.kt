@@ -40,20 +40,28 @@ object ToolRegistry {
         register(id = "word_counter", title = "Word Counter", cat = ToolCategory.DOCUMENT, icon = Icons.Default.FormatListNumbered, type = ToolType.TEXT_PROCESSOR)
         register(id = "whitespace_cleaner", title = "Whitespace Cleaner", cat = ToolCategory.DOCUMENT, icon = Icons.Default.CleaningServices, type = ToolType.TEXT_PROCESSOR)
         register(id = "text_diff", title = "Text Diff", cat = ToolCategory.DOCUMENT, icon = Icons.Default.Difference, type = ToolType.TEXT_PROCESSOR)
+        register(id = "text_sorter", title = "Text Sorter", cat = ToolCategory.DOCUMENT, icon = Icons.Default.SortByAlpha, type = ToolType.TEXT_PROCESSOR)
+        register(id = "text_deduplicator", title = "Text Deduplicator", cat = ToolCategory.DOCUMENT, icon = Icons.Default.ContentCut, type = ToolType.TEXT_PROCESSOR)
         register(id = "lorem_ipsum", title = "Lorem Ipsum Generator", cat = ToolCategory.DOCUMENT, icon = Icons.Default.ShortText, type = ToolType.GENERATOR)
         register(id = "markdown_to_html", title = "Markdown to HTML", cat = ToolCategory.DOCUMENT, icon = Icons.Default.Html, type = ToolType.TEXT_PROCESSOR)
 
         // Developer
         register(id = "json_formatter", title = "JSON Formatter", cat = ToolCategory.DEVELOPER, icon = Icons.Default.DataObject, type = ToolType.TEXT_PROCESSOR)
         register(id = "json_minifier", title = "JSON Minifier", cat = ToolCategory.DEVELOPER, icon = Icons.Default.DataObject, type = ToolType.TEXT_PROCESSOR)
+        register(id = "json_validator", title = "JSON Validator", cat = ToolCategory.DEVELOPER, icon = Icons.Default.Rule, type = ToolType.TEXT_PROCESSOR)
         register(id = "uuid_generator", title = "UUID Generator", cat = ToolCategory.DEVELOPER, icon = Icons.Default.Fingerprint, type = ToolType.GENERATOR)
         register(id = "hash_generator", title = "Hash Generator", cat = ToolCategory.DEVELOPER, icon = Icons.Default.Tag, type = ToolType.TEXT_PROCESSOR)
         register(id = "base64_encoder", title = "Base64 Encoder", cat = ToolCategory.DEVELOPER, icon = Icons.Default.VpnKey, type = ToolType.TEXT_PROCESSOR)
         register(id = "base64_decoder", title = "Base64 Decoder", cat = ToolCategory.DEVELOPER, icon = Icons.Default.VpnKey, type = ToolType.TEXT_PROCESSOR)
         register(id = "url_encoder", title = "URL Encoder", cat = ToolCategory.DEVELOPER, icon = Icons.Default.Link, type = ToolType.TEXT_PROCESSOR)
         register(id = "url_decoder", title = "URL Decoder", cat = ToolCategory.DEVELOPER, icon = Icons.Default.Link, type = ToolType.TEXT_PROCESSOR)
+        register(id = "html_encoder", title = "HTML Entity Encoder", cat = ToolCategory.DEVELOPER, icon = Icons.Default.Code, type = ToolType.TEXT_PROCESSOR)
+        register(id = "html_decoder", title = "HTML Entity Decoder", cat = ToolCategory.DEVELOPER, icon = Icons.Default.Code, type = ToolType.TEXT_PROCESSOR)
+        register(id = "regex_tester", title = "Regex Tester", cat = ToolCategory.DEVELOPER, icon = Icons.Default.Search, type = ToolType.TEXT_PROCESSOR)
         register(id = "timestamp_converter", title = "Timestamp Converter", cat = ToolCategory.DEVELOPER, icon = Icons.Default.Schedule, type = ToolType.CALCULATOR)
         register(id = "jwt_decoder", title = "JWT Decoder", cat = ToolCategory.DEVELOPER, icon = Icons.Default.VpnKey, type = ToolType.TEXT_PROCESSOR, premium = true)
+        register(id = "cron_generator", title = "Cron Generator", cat = ToolCategory.DEVELOPER, icon = Icons.Default.Timer, type = ToolType.GENERATOR)
+        register(id = "cron_explainer", title = "Cron Explainer", cat = ToolCategory.DEVELOPER, icon = Icons.Default.AccessTime, type = ToolType.TEXT_PROCESSOR)
 
         // Data / CSV
         register(id = "csv_to_json", title = "CSV to JSON", cat = ToolCategory.DATA, icon = Icons.Default.SyncAlt, type = ToolType.DATA_PROCESSOR)
@@ -88,6 +96,13 @@ object ToolRegistry {
         register(id = "steel_weight", title = "Steel Weight Calculator", cat = ToolCategory.ENGINEERING, icon = Icons.Default.FitnessCenter, type = ToolType.CALCULATOR)
         register(id = "electrical_load", title = "Electrical Load Calculator", cat = ToolCategory.ENGINEERING, icon = Icons.Default.ElectricBolt, type = ToolType.CALCULATOR)
         register(id = "solar_sizing", title = "Solar Sizing Calculator", cat = ToolCategory.ENGINEERING, icon = Icons.Default.WbSunny, type = ToolType.CALCULATOR)
+        register(id = "hvac_sizing", title = "HVAC Sizing", cat = ToolCategory.ENGINEERING, icon = Icons.Default.AcUnit, type = ToolType.CALCULATOR)
+        register(id = "roofing_calculator", title = "Roofing Calculator", cat = ToolCategory.ENGINEERING, icon = Icons.Default.Roofing, type = ToolType.CALCULATOR)
+        register(id = "flooring_estimator", title = "Flooring Estimator", cat = ToolCategory.ENGINEERING, icon = Icons.Default.GridOn, type = ToolType.CALCULATOR)
+        register(id = "land_area_converter", title = "Land Area Converter", cat = ToolCategory.ENGINEERING, icon = Icons.Default.Landscape, type = ToolType.CALCULATOR)
+        register(id = "waste_allowance", title = "Waste Allowance", cat = ToolCategory.ENGINEERING, icon = Icons.Default.Percent, type = ToolType.CALCULATOR)
+        register(id = "material_quantity", title = "Material Quantity", cat = ToolCategory.ENGINEERING, icon = Icons.Default.SquareFoot, type = ToolType.CALCULATOR)
+        register(id = "construction_cost", title = "Construction Cost Estimator", cat = ToolCategory.ENGINEERING, icon = Icons.Default.AccountBalance, type = ToolType.CALCULATOR)
 
         // QR
         register(id = "qr_generator", title = "QR Generator", cat = ToolCategory.QR, icon = Icons.Default.QrCode, type = ToolType.QR_GENERATOR)
@@ -106,6 +121,9 @@ object ToolRegistry {
         register(id = "zip_creator", title = "ZIP Creator", cat = ToolCategory.FILES, icon = Icons.Default.FolderZip, type = ToolType.FILE_PROCESSOR)
         register(id = "zip_extractor", title = "ZIP Extractor", cat = ToolCategory.FILES, icon = Icons.Default.FolderZip, type = ToolType.FILE_PROCESSOR)
         register(id = "duplicate_finder", title = "Duplicate File Finder", cat = ToolCategory.FILES, icon = Icons.Default.ContentCopy, type = ToolType.FILE_PROCESSOR, premium = true)
+
+        // Generators
+        register(id = "random_number", title = "Random Number", cat = ToolCategory.DEVELOPER, icon = Icons.Default.Casino, type = ToolType.GENERATOR)
 
         // Social / Temporary / Communication require external providers
         register(id = "public_image_downloader", title = "Public Image Downloader", cat = ToolCategory.SOCIAL, icon = Icons.Default.Download, type = ToolType.PROVIDER, requiresNetwork = true)
