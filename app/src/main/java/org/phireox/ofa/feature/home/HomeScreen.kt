@@ -25,7 +25,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import kotlinx.coroutines.launch
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -39,6 +41,7 @@ import org.phireox.ofa.data.model.ToolRegistry
 @Composable
 fun HomeScreen(
     onToolClick: (String) -> Unit,
+    onCategoryClick: (String) -> Unit,
     onSearchClick: () -> Unit,
     onSettingsClick: () -> Unit
 ) {
@@ -46,6 +49,7 @@ fun HomeScreen(
     val prefs = remember { PrefsDataStore(context) }
     val favorites by prefs.favorites.collectAsState(initial = emptySet())
     val recent by prefs.recentTools.collectAsState(initial = emptyList())
+    val scope = rememberCoroutineScope()
 
     Scaffold(
         topBar = {
@@ -60,11 +64,33 @@ fun HomeScreen(
     ) { padding ->
         Column(modifier = Modifier.fillMaxSize().padding(padding)) {
             Text("One For All", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.padding(16.dp))
+            if (favorites.isNotEmpty()) {
+                Text("Favorites", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(horizontal = 16.dp))
+                LazyRow(contentPadding = PaddingValues(16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    items(favorites.toList(), key = { it }) { id ->
+                        ToolRegistry.byId(id)?.let { tool ->
+                            ToolCard(
+                                tool = tool,
+                                isFavorite = true,
+                                onClick = { onToolClick(tool.id) },
+                                onToggleFavorite = { scope.launch { prefs.toggleFavorite(tool.id) } },
+                                modifier = Modifier.animateItemPlacement()
+                            )
+                        }
+                    }
+                }
+            }
             Text("Recently used", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(horizontal = 16.dp))
             LazyRow(contentPadding = PaddingValues(16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 items(recent, key = { it }) { id ->
                     ToolRegistry.byId(id)?.let { tool ->
-                        ToolCard(tool = tool, isFavorite = favorites.contains(tool.id), onClick = { onToolClick(tool.id) }, onToggleFavorite = {}, modifier = Modifier.animateItemPlacement())
+                        ToolCard(
+                            tool = tool,
+                            isFavorite = favorites.contains(tool.id),
+                            onClick = { onToolClick(tool.id) },
+                            onToggleFavorite = { scope.launch { prefs.toggleFavorite(tool.id) } },
+                            modifier = Modifier.animateItemPlacement()
+                        )
                     }
                 }
             }
@@ -77,7 +103,7 @@ fun HomeScreen(
             ) {
                 items(ToolCategory.entries.toList(), key = { it.key }) { cat ->
                     val count = ToolRegistry.byCategory(cat).size
-                    CategoryCard(category = cat, title = stringResource(id = cat.titleRes), count = count, modifier = Modifier.animateItemPlacement()) { onToolClick(ToolRegistry.byCategory(cat).firstOrNull()?.id ?: return@CategoryCard) }
+                    CategoryCard(category = cat, title = stringResource(id = cat.titleRes), count = count, modifier = Modifier.animateItemPlacement()) { onCategoryClick(cat.key) }
                 }
             }
         }

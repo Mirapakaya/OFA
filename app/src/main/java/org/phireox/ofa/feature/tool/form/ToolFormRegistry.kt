@@ -52,6 +52,12 @@ object ToolFormRegistry {
             FieldSpec("input", "Input", FieldType.MULTILINE)
         )
 
+        "number_base_converter" -> listOf(
+            FieldSpec("input", "Input", FieldType.MULTILINE),
+            FieldSpec("fromBase", "From base", FieldType.INTEGER, defaultValue = "10"),
+            FieldSpec("toBase", "To base", FieldType.INTEGER, defaultValue = "2")
+        )
+
         // Text processors with extra parameters
         "case_converter" -> listOf(
             FieldSpec("input", "Input", FieldType.MULTILINE),
@@ -84,6 +90,10 @@ object ToolFormRegistry {
             FieldSpec("input", "Cron expression")
         )
 
+        "slug_generator", "morse_converter" -> listOf(
+            FieldSpec("input", "Input", FieldType.MULTILINE)
+        )
+
         // Data processors
         "csv_to_json",
         "json_to_csv",
@@ -95,6 +105,10 @@ object ToolFormRegistry {
         "uuid_generator",
         "color_palette",
         "favicon_generator" -> emptyList()
+
+        "random_string" -> listOf(
+            FieldSpec("length", "Length", FieldType.INTEGER, defaultValue = "16")
+        )
 
         "lorem_ipsum" -> listOf(
             FieldSpec("paragraphs", "Paragraphs", FieldType.INTEGER, defaultValue = "2")
@@ -237,10 +251,33 @@ object ToolFormRegistry {
             FieldSpec("birth", "Birth date", FieldType.DATE)
         )
 
+        "compound_interest" -> listOf(
+            FieldSpec("principal", "Principal", FieldType.NUMBER),
+            FieldSpec("rate", "Annual interest rate (%)", FieldType.NUMBER),
+            FieldSpec("years", "Years", FieldType.NUMBER, defaultValue = "1"),
+            FieldSpec("frequency", "Compounding frequency per year", FieldType.INTEGER, defaultValue = "1")
+        )
+
+        "hex_color_converter" -> listOf(
+            FieldSpec("hex", "HEX color", defaultValue = "#6750A4")
+        )
+
         "unit_converter" -> listOf(
             FieldSpec("value", "Value", FieldType.NUMBER),
-            FieldSpec("from", "From unit"),
-            FieldSpec("to", "To unit")
+            FieldSpec(
+                "from",
+                "From unit",
+                FieldType.DROPDOWN,
+                defaultValue = "m",
+                options = listOf("m", "km", "cm", "mm", "in", "ft", "mi", "kg", "g", "mg", "lb", "oz", "c", "f", "k")
+            ),
+            FieldSpec(
+                "to",
+                "To unit",
+                FieldType.DROPDOWN,
+                defaultValue = "ft",
+                options = listOf("m", "km", "cm", "mm", "in", "ft", "mi", "kg", "g", "mg", "lb", "oz", "c", "f", "k")
+            )
         )
 
         // Business templates
@@ -329,7 +366,9 @@ object ToolFormRegistry {
         )
 
         "image_crop" -> listOf(
-            FieldSpec("file", "File", FieldType.FILE)
+            FieldSpec("file", "File", FieldType.FILE),
+            FieldSpec("width", "Width", FieldType.INTEGER, defaultValue = "300"),
+            FieldSpec("height", "Height", FieldType.INTEGER, defaultValue = "300")
         )
 
         "file_hash" -> listOf(

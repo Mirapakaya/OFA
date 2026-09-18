@@ -31,10 +31,15 @@ import org.phireox.ofa.data.model.ToolRegistry
 @Composable
 fun CategoryDetailScreen(categoryKey: String, onBack: () -> Unit, onToolClick: (String) -> Unit) {
     val category = ToolCategory.entries.find { it.key == categoryKey } ?: return
-    val tools = ToolRegistry.byCategory(category)
     val context = LocalContext.current
     val prefs = remember { PrefsDataStore(context) }
     val favorites by prefs.favorites.collectAsState(initial = emptySet())
+    val recent by prefs.recentTools.collectAsState(initial = emptyList())
+    val tools = when (category) {
+        ToolCategory.FAVORITES -> ToolRegistry.tools.filter { favorites.contains(it.id) }
+        ToolCategory.RECENT -> recent.mapNotNull { ToolRegistry.byId(it) }
+        else -> ToolRegistry.byCategory(category)
+    }
 
     Scaffold(
         topBar = {

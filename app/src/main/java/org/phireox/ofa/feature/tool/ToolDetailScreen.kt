@@ -19,6 +19,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.StarBorder
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -33,7 +35,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
@@ -42,6 +47,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import kotlinx.coroutines.launch
+import org.phireox.ofa.data.local.PrefsDataStore
 import org.phireox.ofa.data.model.ToolType
 import org.phireox.ofa.feature.tool.form.ToolFormRenderer
 
@@ -60,6 +67,10 @@ fun ToolDetailScreen(
     val scrollState = rememberScrollState()
     val clipboard = LocalClipboardManager.current
     val snackbarHostState = remember { SnackbarHostState() }
+    val prefs = remember { PrefsDataStore(context) }
+    val favorites by prefs.favorites.collectAsState(initial = emptySet())
+    val scope = rememberCoroutineScope()
+    val isFavorite = favorites.contains(toolId)
 
     LaunchedEffect(state.output) {
         if (state.output.isNotBlank()) {
@@ -73,6 +84,14 @@ fun ToolDetailScreen(
                 title = { Text(state.tool?.title ?: "Tool") },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") }
+                },
+                actions = {
+                    IconButton(onClick = { scope.launch { prefs.toggleFavorite(toolId) } }) {
+                        Icon(
+                            if (isFavorite) Icons.Default.Star else Icons.Default.StarBorder,
+                            contentDescription = if (isFavorite) "Remove favorite" else "Add favorite"
+                        )
+                    }
                 }
             )
         },

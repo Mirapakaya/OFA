@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.phireox.ofa.data.local.PrefsDataStore
 import org.phireox.ofa.data.model.Tool
 import org.phireox.ofa.data.model.ToolRegistry
 import org.phireox.ofa.data.model.ToolType
@@ -28,6 +29,14 @@ data class ToolUiState(
 class ToolViewModel(toolId: String, app: Application) : AndroidViewModel(app) {
 
     val state = mutableStateOf(ToolUiState(tool = ToolRegistry.byId(toolId)))
+
+    private val prefs = PrefsDataStore(app)
+
+    init {
+        viewModelScope.launch {
+            prefs.addRecentTool(toolId)
+        }
+    }
 
     fun updateInput(input: String) {
         state.value = state.value.copy(input = input, error = null)

@@ -23,13 +23,17 @@ object FileToolProcessor {
             when (tool.id) {
                 "pdf_metadata" -> pdfMetadata(context, uri)
                 "pdf_to_images" -> pdfToImages(context, uri)
+                "pdf_merge" -> pdfMerge(context, uri)
                 "pdf_split" -> pdfSplit(context, uri)
                 "pdf_compress" -> pdfCompress(context, uri)
+                "images_to_pdf" -> imageToPdf(context, uri)
                 "image_compress" -> imageCompress(context, uri, params)
                 "image_resize" -> imageResize(context, uri, params)
                 "image_rotate" -> imageRotate(context, uri, params)
                 "image_flip" -> imageFlip(context, uri, params)
+                "image_crop" -> imageCrop(context, uri, params)
                 "image_to_pdf" -> imageToPdf(context, uri)
+                "exif_viewer" -> exifViewer(context, uri)
                 "file_hash" -> fileHash(context, uri, params["algo"] ?: "SHA-256")
                 "mime_detector" -> ToolResult.Text(context.contentResolver.getType(uri) ?: "unknown/unknown")
                 "zip_creator" -> zipFiles(context, listOf(uri))
@@ -112,6 +116,42 @@ object FileToolProcessor {
         return ToolResult.Error("Cannot open PDF")
     }
 
+    private fun pdfMerge(context: Context, uri: Uri): ToolResult {
+        context.contentResolver.openInputStream(uri)?.use { stream ->
+            PDDocument.load(stream).use { doc ->
+                val outFile = File(context.cacheDir, "merged.pdf")
+                FileOutputStream(outFile).use { doc.save(it) }
+                return ToolResult.Text("Saved merged PDF to ${outFile.absolutePath}\n(Multi-file merge requires selecting multiple files.)")
+            }
+        }
+        return ToolResult.Error("Cannot open PDF")
+    }
+
+    private fun exifViewer(context: Context, uri: Uri): ToolResult {
+        return try {
+            context.contentResolver.openInputStream(uri)?.use { stream ->
+                val exif = android.media.ExifInterface(stream)
+                val tags = listOf(
+                    ExifInterface.TAG_MAKE to "Make",
+                    ExifInterface.TAG_MODEL to "Model",
+                    ExifInterface.TAG_DATETIME to "Date",
+                    ExifInterface.TAG_IMAGE_WIDTH to "Width",
+                    ExifInterface.TAG_IMAGE_LENGTH to "Height",
+                    ExifInterface.TAG_F_NUMBER to "Aperture",
+                    ExifInterface.TAG_EXPOSURE_TIME to "Exposure",
+                    ExifInterface.TAG_ISO to "ISO",
+                    ExifInterface.TAG_FOCAL_LENGTH to "Focal length",
+                    ExifInterface.TAG_GPS_LATITUDE to "Latitude",
+                    ExifInterface.TAG_GPS_LONGITUDE to "Longitude"
+                )
+                val text = tags.joinToString("\n") { "${it.second}: ${exif.getAttribute(it.first) ?: "n/a"}" }
+                return ToolResult.Text(text)
+            } ?: ToolResult.Error("Cannot open image")
+        } catch (e: Exception) {
+            return ToolResult.Error("EXIF read failed: ${e.localizedMessage}")
+        }
+    }
+
     private fun imageCompress(context: Context, uri: Uri, params: Map<String, String>): ToolResult {
         val quality = params["quality"]?.toIntOrNull() ?: 80
         val bitmap = decodeBitmap(context, uri) ?: return ToolResult.Error("Cannot decode image")
@@ -151,6 +191,20 @@ object FileToolProcessor {
         val outFile = File(context.cacheDir, "flipped_${System.currentTimeMillis()}.png")
         FileOutputStream(outFile).use { flipped.compress(Bitmap.CompressFormat.PNG, 100, it) }
         return ToolResult.Text("Saved flipped image to ${outFile.absolutePath}")
+    }
+
+    private fun imageCrop(context: Context, uri: Uri, params: Map<String, String>): ToolResult {
+        val bitmap = decodeBitmap(context, uri) ?: return ToolResult.Error("Cannot decode image")
+        val cropWidth = params["width"]?.toIntOrNull() ?: 300
+        val cropHeight = params["height"]?.toIntOrNull() ?: 300
+        val width = cropWidth.coerceAtMost(bitmap.width)
+        val height = cropHeight.coerceAtMost(bitmap.height)
+        val left = ((bitmap.width - width) / 2).coerceAtLeast(0)
+        val top = ((bitmap.height - height) / 2).coerceAtLeast(0)
+        val cropped = Bitmap.createBitmap(bitmap, left, top, width, height)
+        val outFile = File(context.cacheDir, "cropped_${System.currentTimeMillis()}.png")
+        FileOutputStream(outFile).use { cropped.compress(Bitmap.CompressFormat.PNG, 100, it) }
+        return ToolResult.Text("Saved cropped image to ${outFile.absolutePath}")
     }
 
     private fun imageToPdf(context: Context, uri: Uri): ToolResult {

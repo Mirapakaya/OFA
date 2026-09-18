@@ -32,6 +32,7 @@ object ToolProcessor {
                 ToolType.TEXT_PROCESSOR -> processText(tool.id, input, params)
                 ToolType.GENERATOR -> processGenerator(tool.id, params)
                 ToolType.CALCULATOR -> processCalculator(tool.id, params)
+                ToolType.CONVERTER -> processCalculator(tool.id, params)
                 ToolType.DATA_PROCESSOR -> processData(tool.id, input)
                 ToolType.QR_GENERATOR -> ToolResult.Text("QR generated")
                 ToolType.BUSINESS_TEMPLATE -> processBusinessTemplate(tool.id, params)
@@ -96,7 +97,11 @@ object ToolProcessor {
             "remove_empty_lines" -> ToolResult.Text(input.lines().filter { it.isNotBlank() }.joinToString("\n"))
             "shuffle_lines" -> ToolResult.Text(input.lines().shuffled().joinToString("\n"))
             "line_number_adder" -> ToolResult.Text(input.lines().mapIndexed { i, line -> "${i + 1}: $line" }.joinToString("\n"))
-            "palindrome_checker" -> ToolResult.Text("${if (input.lowercase() == input.lowercase().reversed()) "Palindrome" else "Not a palindrome"}")
+            "palindrome_checker" -> ToolResult.Text("${if (input.lowercase() == input.lowercase().reversed()) \"Palindrome\" else \"Not a palindrome\"}")
+            "slug_generator" -> ToolResult.Text(generateSlug(input))
+            "morse_converter" -> ToolResult.Text(convertMorse(input))
+            "number_base_converter" -> ToolResult.Text(convertBase(input, params["fromBase"] ?: "10", params["toBase"] ?: "2"))
+            "svg_optimizer" -> ToolResult.Text(optimizeSvg(input))
             else -> ToolResult.Text(input)
         }
     }
@@ -108,6 +113,7 @@ object ToolProcessor {
             "password_generator" -> ToolResult.Text(generatePassword(params["length"]?.toIntOrNull() ?: 16))
             "color_palette" -> ToolResult.Text(generatePalette())
             "cron_generator" -> ToolResult.Text(generateCron(params))
+            "favicon_generator" -> ToolResult.Text(generateFavicon())
             "random_number" -> {
                 val min = params["min"]?.toIntOrNull() ?: 0
                 val max = params["max"]?.toIntOrNull() ?: 100
@@ -115,6 +121,7 @@ object ToolProcessor {
                 val b = min.coerceAtLeast(max)
                 ToolResult.Text((a..b).random().toString())
             }
+            "random_string" -> ToolResult.Text(generateRandomString(params["length"]?.toIntOrNull() ?: 16))
             else -> ToolResult.Text("Generated output")
         }
     }
@@ -316,6 +323,22 @@ object ToolProcessor {
                         ToolResult.Text("Age: $years years, $months months")
                     }
                 }
+                "compound_interest" -> {
+                    val principal = params["principal"]?.toDoubleOrNull() ?: 0.0
+                    val annualRate = params["rate"]?.toDoubleOrNull() ?: 0.0
+                    val years = params["years"]?.toDoubleOrNull() ?: 1.0
+                    val frequency = params["frequency"]?.toIntOrNull() ?: 1
+                    val n = frequency.coerceAtLeast(1)
+                    val r = annualRate / 100 / n
+                    val amount = principal * Math.pow(1 + r, n * years)
+                    val interest = amount - principal
+                    ToolResult.Text("Principal: ${"%.2f".format(principal)}\nInterest: ${"%.2f".format(interest)}\nTotal: ${"%.2f".format(amount)}")
+                }
+                "hex_color_converter" -> {
+                    val hex = params["hex"] ?: ""
+                    val rgb = hexToRgb(hex)
+                    ToolResult.Text(if (rgb != null) "RGB: ${rgb.first}, ${rgb.second}, ${rgb.third}\nHEX: $hex" else "Invalid HEX color")
+                }
                 "unit_converter" -> {
                     val value = params["value"]?.toDoubleOrNull() ?: 0.0
                     val from = params["from"] ?: ""
@@ -352,6 +375,13 @@ object ToolProcessor {
             }
         }
         return bitmap
+    }
+
+    private fun optimizeSvg(input: String): String {
+        return input.replace(Regex("<!--[\\s\\S]*?-->"), "")
+            .replace(Regex("\\s+"), " ")
+            .replace(Regex(" />"), "/>")
+            .trim()
     }
 
     private fun toCamelCase(input: String): String {
@@ -521,12 +551,72 @@ object ToolProcessor {
         return listOf("#6750A4", "#9C27B0", "#2196F3", "#4CAF50", "#FF9800").joinToString("\n")
     }
 
+    private fun generateFavicon(): String {
+        val svg = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"><rect fill=\"%236750A4\" width=\"100\" height=\"100\" rx=\"20\"/><text x=\"50\" y=\"65\" font-size=\"60\" text-anchor=\"middle\" fill=\"white\">O</text></svg>"
+        return "$svg\n\nSave as favicon.svg and reference it with:\n<link rel=\"icon\" type=\"image/svg+xml\" href=\"/favicon.svg\">"
+    }
+
     private fun luminance(r: Int, g: Int, b: Int): Double {
         fun channel(c: Int): Double {
             val v = c / 255.0
             return if (v <= 0.03928) v / 12.92 else Math.pow((v + 0.055) / 1.055, 2.4)
         }
         return 0.2126 * channel(r) + 0.7152 * channel(g) + 0.0722 * channel(b)
+    }
+
+
+    private fun generateSlug(input: String): String {
+        return input.lowercase()
+            .replace(Regex("[^a-z0-9\\s-]"), "")
+            .trim()
+            .replace(Regex("\\s+"), "-")
+    }
+
+    private fun convertMorse(input: String): String {
+        val toMorse = mapOf(
+            'A' to ".-", 'B' to "-...", 'C' to "-.-.", 'D' to "-..", 'E' to ".", 'F' to "..-.",
+            'G' to "--.", 'H' to "....", 'I' to "..", 'J' to ".---", 'K' to "-.-", 'L' to ".-..",
+            'M' to "--", 'N' to "-.", 'O' to "---", 'P' to ".--.", 'Q' to "--.-", 'R' to ".-.",
+            'S' to "...", 'T' to "-", 'U' to "..-", 'V' to "...-", 'W' to ".--", 'X' to "-..-",
+            'Y' to "-.--", 'Z' to "--..",
+            '0' to "-----", '1' to ".----", '2' to "..---", '3' to "...--", '4' to "....-",
+            '5' to ".....", '6' to "-....", '7' to "--...", '8' to "---..", '9' to "----."
+        )
+        val fromMorse = toMorse.entries.associate { it.value to it.key }
+        return if (input.trim().any { it == '.' || it == '-' }) {
+            input.split(" ").mapNotNull { fromMorse[it.uppercase()]?.toString() }.joinToString("")
+        } else {
+            input.uppercase().mapNotNull { toMorse[it] }.joinToString(" ")
+        }
+    }
+
+    private fun convertBase(input: String, fromBase: String, toBase: String): String {
+        return try {
+            val from = fromBase.toIntOrNull() ?: 10
+            val to = toBase.toIntOrNull() ?: 10
+            val value = input.trim().toLong(from)
+            value.toString(to.coerceIn(2, 36)).uppercase()
+        } catch (e: Exception) {
+            "Invalid input"
+        }
+    }
+
+    private fun generateRandomString(length: Int): String {
+        val chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+        return (1..length.coerceIn(1, 256)).map { chars.random() }.joinToString("")
+    }
+
+    private fun hexToRgb(hex: String): Triple<Int, Int, Int>? {
+        val clean = hex.removePrefix("#")
+        return try {
+            when (clean.length) {
+                6 -> Triple(clean.substring(0, 2).toInt(16), clean.substring(2, 4).toInt(16), clean.substring(4, 6).toInt(16))
+                3 -> Triple(clean[0].toString().repeat(2).toInt(16), clean[1].toString().repeat(2).toInt(16), clean[2].toString().repeat(2).toInt(16))
+                else -> null
+            }
+        } catch (e: Exception) {
+            null
+        }
     }
 
     private fun convertUnit(value: Double, from: String, to: String): Double {

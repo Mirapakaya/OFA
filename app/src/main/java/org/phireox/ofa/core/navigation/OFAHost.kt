@@ -34,6 +34,7 @@ fun OFANavHost(navController: NavHostController, modifier: Modifier = Modifier) 
         composable(Destination.Home.route) {
             HomeScreen(
                 onToolClick = { id -> navController.navigate(Destination.Tool.createRoute(id)) },
+                onCategoryClick = { key -> navController.navigate(Destination.Category.createRoute(key)) },
                 onSearchClick = { navController.navigate(Destination.Search.route) },
                 onSettingsClick = { navController.navigate(Destination.Settings.route) }
             )

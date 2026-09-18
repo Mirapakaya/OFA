@@ -49,6 +49,8 @@ object ToolRegistry {
         register(id = "shuffle_lines", title = "Shuffle Lines", cat = ToolCategory.DOCUMENT, icon = Icons.Default.Shuffle, type = ToolType.TEXT_PROCESSOR)
         register(id = "line_number_adder", title = "Line Number Adder", cat = ToolCategory.DOCUMENT, icon = Icons.Default.FormatListNumbered, type = ToolType.TEXT_PROCESSOR)
         register(id = "palindrome_checker", title = "Palindrome Checker", cat = ToolCategory.DOCUMENT, icon = Icons.Default.Repeat, type = ToolType.TEXT_PROCESSOR)
+        register(id = "slug_generator", title = "Slug Generator", cat = ToolCategory.DOCUMENT, icon = Icons.Default.Link, type = ToolType.TEXT_PROCESSOR)
+        register(id = "morse_converter", title = "Morse Converter", cat = ToolCategory.DOCUMENT, icon = Icons.Default.Radio, type = ToolType.TEXT_PROCESSOR)
 
         // Developer
         register(id = "json_formatter", title = "JSON Formatter", cat = ToolCategory.DEVELOPER, icon = Icons.Default.DataObject, type = ToolType.TEXT_PROCESSOR)
@@ -67,6 +69,8 @@ object ToolRegistry {
         register(id = "jwt_decoder", title = "JWT Decoder", cat = ToolCategory.DEVELOPER, icon = Icons.Default.VpnKey, type = ToolType.TEXT_PROCESSOR, premium = true)
         register(id = "cron_generator", title = "Cron Generator", cat = ToolCategory.DEVELOPER, icon = Icons.Default.Timer, type = ToolType.GENERATOR)
         register(id = "cron_explainer", title = "Cron Explainer", cat = ToolCategory.DEVELOPER, icon = Icons.Default.AccessTime, type = ToolType.TEXT_PROCESSOR)
+        register(id = "number_base_converter", title = "Number Base Converter", cat = ToolCategory.DEVELOPER, icon = Icons.Default.Numbers, type = ToolType.TEXT_PROCESSOR)
+        register(id = "random_string", title = "Random String", cat = ToolCategory.DEVELOPER, icon = Icons.Default.Casino, type = ToolType.GENERATOR)
 
         // Data / CSV
         register(id = "csv_to_json", title = "CSV to JSON", cat = ToolCategory.DATA, icon = Icons.Default.SyncAlt, type = ToolType.DATA_PROCESSOR)
@@ -129,6 +133,8 @@ object ToolRegistry {
 
         // Calculators
         register(id = "emi_calculator", title = "EMI Calculator", cat = ToolCategory.CALCULATORS, icon = Icons.Default.AccountBalance, type = ToolType.CALCULATOR)
+        register(id = "compound_interest", title = "Compound Interest", cat = ToolCategory.CALCULATORS, icon = Icons.Default.TrendingUp, type = ToolType.CALCULATOR)
+        register(id = "hex_color_converter", title = "Hex Color Converter", cat = ToolCategory.CALCULATORS, icon = Icons.Default.Colorize, type = ToolType.CALCULATOR)
         register(id = "bmi_calculator", title = "BMI Calculator", cat = ToolCategory.CALCULATORS, icon = Icons.Default.Favorite, type = ToolType.CALCULATOR)
         register(id = "percentage_calculator", title = "Percentage Calculator", cat = ToolCategory.CALCULATORS, icon = Icons.Default.Percent, type = ToolType.CALCULATOR)
         register(id = "tip_calculator", title = "Tip Calculator", cat = ToolCategory.CALCULATORS, icon = Icons.Default.LocalAtm, type = ToolType.CALCULATOR)
