@@ -1,8 +1,9 @@
 package org.phireox.ofa.feature.tool
 
-import android.net.Uri
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -18,7 +19,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Share
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -26,11 +26,14 @@ import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
@@ -40,6 +43,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.phireox.ofa.data.model.ToolType
+import org.phireox.ofa.feature.tool.form.ToolFormRenderer
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -55,6 +59,13 @@ fun ToolDetailScreen(
     val state = viewModel.state.value
     val scrollState = rememberScrollState()
     val clipboard = LocalClipboardManager.current
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(state.output) {
+        if (state.output.isNotBlank()) {
+            scrollState.scrollTo(scrollState.maxValue)
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -64,7 +75,8 @@ fun ToolDetailScreen(
                     IconButton(onClick = onNavigateBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") }
                 }
             )
-        }
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
         Column(
             modifier = Modifier
@@ -72,13 +84,24 @@ fun ToolDetailScreen(
                 .padding(padding)
                 .verticalScroll(scrollState)
                 .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             state.tool?.let { tool ->
-                Text(tool.description, style = MaterialTheme.typography.bodyMedium)
+                Card(modifier = Modifier.fillMaxWidth()) {
+                    Text(
+                        tool.description,
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(16.dp)
+                    )
+                }
 
                 if (tool.requiresNetwork) {
-                    Card(modifier = Modifier.fillMaxWidth()) {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = androidx.compose.material3.CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.errorContainer
+                        )
+                    ) {
                         Column(Modifier.padding(16.dp)) {
                             Text("External service required", style = MaterialTheme.typography.titleMedium)
                             Spacer(Modifier.height(4.dp))
@@ -86,62 +109,25 @@ fun ToolDetailScreen(
                         }
                     }
                 } else {
-                    when (tool.toolType) {
-                        ToolType.QR_GENERATOR -> {
-                            OutlinedTextField(
-                                value = state.input,
-                                onValueChange = viewModel::updateInput,
-                                label = { Text("QR content") },
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                            Button(onClick = { viewModel.process() }, modifier = Modifier.fillMaxWidth()) { Text("Generate QR") }
+                    ToolFormRenderer(tool = tool, viewModel = viewModel)
+
+                    if (tool.toolType == ToolType.QR_GENERATOR) {
+                        AnimatedVisibility(visible = state.qrBitmap != null, enter = fadeIn(), exit = fadeOut()) {
                             state.qrBitmap?.let { bitmap ->
-                                Image(bitmap = bitmap.asImageBitmap(), contentDescription = "QR Code", modifier = Modifier.align(Alignment.CenterHorizontally))
+                                Image(
+                                    bitmap = bitmap.asImageBitmap(),
+                                    contentDescription = "QR Code",
+                                    modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 16.dp)
+                                )
                             }
-                        }
-                        ToolType.CALCULATOR -> {
-                            Text("Enter values as key=value separated by commas, then tap Calculate.")
-                            OutlinedTextField(
-                                value = state.input,
-                                onValueChange = viewModel::updateInput,
-                                label = { Text("Parameters") },
-                                modifier = Modifier.fillMaxWidth(),
-                                minLines = 3
-                            )
-                            Button(onClick = { viewModel.process(parseParams(state.input)) }, modifier = Modifier.fillMaxWidth()) { Text("Calculate") }
-                        }
-                        ToolType.FILE_PROCESSOR, ToolType.PDF_PROCESSOR, ToolType.IMAGE_PROCESSOR -> {
-                            val mime = when (tool.toolType) {
-                                ToolType.PDF_PROCESSOR -> arrayOf("application/pdf")
-                                ToolType.IMAGE_PROCESSOR -> arrayOf("image/*")
-                                else -> arrayOf("*/*")
-                            }
-                            val launcher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
-                                uri?.let { viewModel.processFile(it, parseParams(state.input)) }
-                            }
-                            Text("Pick a file to process. Optional params as key=value,comma separated.")
-                            OutlinedTextField(
-                                value = state.input,
-                                onValueChange = viewModel::updateInput,
-                                label = { Text("Parameters") },
-                                modifier = Modifier.fillMaxWidth(),
-                                minLines = 3
-                            )
-                            Button(onClick = { launcher.launch(mime) }, modifier = Modifier.fillMaxWidth()) { Text("Pick File") }
-                        }
-                        else -> {
-                            OutlinedTextField(
-                                value = state.input,
-                                onValueChange = viewModel::updateInput,
-                                label = { Text("Input") },
-                                modifier = Modifier.fillMaxWidth(),
-                                minLines = 4
-                            )
-                            Button(onClick = { viewModel.process() }, modifier = Modifier.fillMaxWidth()) { Text("Process") }
                         }
                     }
 
-                    if (state.loading) {
+                    AnimatedVisibility(
+                        visible = state.loading,
+                        enter = fadeIn(),
+                        exit = fadeOut()
+                    ) {
                         CircularProgressIndicator(Modifier.align(Alignment.CenterHorizontally))
                     }
 
@@ -149,11 +135,16 @@ fun ToolDetailScreen(
                         Text("Error: $it", color = MaterialTheme.colorScheme.error)
                     }
 
-                    if (state.output.isNotBlank()) {
+                    AnimatedVisibility(
+                        visible = state.output.isNotBlank() && !state.loading,
+                        enter = fadeIn() + slideInVertically { it / 2 }
+                    ) {
                         Card(modifier = Modifier.fillMaxWidth()) {
                             Column(Modifier.padding(16.dp)) {
                                 Text("Result", style = MaterialTheme.typography.titleMedium)
+                                Spacer(Modifier.height(8.dp))
                                 Text(state.output)
+                                Spacer(Modifier.height(8.dp))
                                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                     FilledTonalButton(onClick = { clipboard.setText(AnnotatedString(state.output)) }) {
                                         Icon(Icons.Default.ContentCopy, contentDescription = null)
@@ -177,11 +168,4 @@ fun ToolDetailScreen(
             } ?: Text("Tool not found")
         }
     }
-}
-
-private fun parseParams(input: String): Map<String, String> {
-    return input.split(",")
-        .map { it.trim() }
-        .filter { "=" in it }
-        .associate { it.substringBefore("=") to it.substringAfter("=") }
 }

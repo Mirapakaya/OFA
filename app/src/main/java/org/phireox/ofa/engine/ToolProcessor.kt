@@ -92,6 +92,11 @@ object ToolProcessor {
             "link_cleaner" -> ToolResult.Text(cleanUrl(input))
             "regex_tester" -> ToolResult.Text(testRegex(input, params["pattern"] ?: ""))
             "cron_explainer" -> ToolResult.Text(explainCron(input))
+            "find_replace" -> ToolResult.Text(input.replace(params["find"] ?: "", params["replace"] ?: ""))
+            "remove_empty_lines" -> ToolResult.Text(input.lines().filter { it.isNotBlank() }.joinToString("\n"))
+            "shuffle_lines" -> ToolResult.Text(input.lines().shuffled().joinToString("\n"))
+            "line_number_adder" -> ToolResult.Text(input.lines().mapIndexed { i, line -> "${i + 1}: $line" }.joinToString("\n"))
+            "palindrome_checker" -> ToolResult.Text("${if (input.lowercase() == input.lowercase().reversed()) "Palindrome" else "Not a palindrome"}")
             else -> ToolResult.Text(input)
         }
     }

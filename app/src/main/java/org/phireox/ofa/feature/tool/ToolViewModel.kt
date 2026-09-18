@@ -35,18 +35,19 @@ class ToolViewModel(toolId: String, app: Application) : AndroidViewModel(app) {
 
     fun process(params: Map<String, String> = emptyMap()) {
         val tool = state.value.tool ?: return
+        val input = params["input"] ?: ""
         state.value = state.value.copy(loading = true, error = null, output = "", qrBitmap = null)
         viewModelScope.launch(Dispatchers.Default) {
             try {
                 when (tool.toolType) {
                     ToolType.QR_GENERATOR -> {
-                        val bitmap = ToolProcessor.generateQrBitmap(state.value.input, 512)
+                        val bitmap = ToolProcessor.generateQrBitmap(input, 512)
                         withContext(Dispatchers.Main) {
                             state.value = state.value.copy(qrBitmap = bitmap, loading = false)
                         }
                     }
                     else -> {
-                        val result = ToolProcessor.process(tool, state.value.input, params)
+                        val result = ToolProcessor.process(tool, input, params)
                         withContext(Dispatchers.Main) {
                             when (result) {
                                 is ToolResult.Text -> state.value = state.value.copy(output = result.value, loading = false)

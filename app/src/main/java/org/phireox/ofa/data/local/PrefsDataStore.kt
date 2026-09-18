@@ -25,7 +25,7 @@ class PrefsDataStore(context: Context) {
         dataStore.edit { it[Keys.THEME_MODE] = mode.name }
     }
 
-    val dynamicColor: Flow<Boolean> = dataStore.data.map { it[Keys.DYNAMIC_COLOR] != false }
+    val dynamicColor: Flow<Boolean> = dataStore.data.map { it[Keys.DYNAMIC_COLOR] == true }
 
     suspend fun setDynamicColor(enabled: Boolean) {
         dataStore.edit { it[Keys.DYNAMIC_COLOR] = enabled }

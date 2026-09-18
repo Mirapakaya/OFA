@@ -45,12 +45,13 @@ fun CategoryDetailScreen(categoryKey: String, onBack: () -> Unit, onToolClick: (
         }
     ) { padding ->
         LazyColumn(modifier = Modifier.fillMaxSize().padding(padding), contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            items(tools) { tool ->
+            items(tools, key = { it.id }) { tool ->
                 ToolCard(
                     tool = tool,
                     isFavorite = favorites.contains(tool.id),
                     onClick = { onToolClick(tool.id) },
-                    onToggleFavorite = { }
+                    onToggleFavorite = { },
+                    modifier = Modifier.animateItemPlacement()
                 )
             }
         }

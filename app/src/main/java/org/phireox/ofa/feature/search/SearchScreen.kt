@@ -55,12 +55,13 @@ fun SearchScreen(onBack: () -> Unit, onToolClick: (String) -> Unit) {
                     label = { Text("Search tools") }
                 )
             }
-            items(results) { tool ->
+            items(results, key = { it.id }) { tool ->
                 ToolCard(
                     tool = tool,
                     isFavorite = favorites.contains(tool.id),
                     onClick = { onToolClick(tool.id) },
-                    onToggleFavorite = { }
+                    onToggleFavorite = { },
+                    modifier = Modifier.animateItemPlacement()
                 )
             }
         }

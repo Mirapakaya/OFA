@@ -1,5 +1,9 @@
 package org.phireox.ofa.core.navigation
 
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
@@ -17,7 +21,15 @@ import org.phireox.ofa.feature.tool.ToolDetailScreen
 
 @Composable
 fun OFANavHost(navController: NavHostController, modifier: Modifier = Modifier) {
-    NavHost(navController = navController, startDestination = Destination.Home.route, modifier = modifier) {
+    NavHost(
+        navController = navController,
+        startDestination = Destination.Home.route,
+        modifier = modifier,
+        enterTransition = { slideInHorizontally { it } + fadeIn() },
+        exitTransition = { slideOutHorizontally { -it / 2 } + fadeOut() },
+        popEnterTransition = { slideInHorizontally { -it } + fadeIn() },
+        popExitTransition = { slideOutHorizontally { it } + fadeOut() }
+    ) {
         composable(Destination.Home.route) {
             HomeScreen(
                 onToolClick = { id -> navController.navigate(Destination.Tool.createRoute(id)) },

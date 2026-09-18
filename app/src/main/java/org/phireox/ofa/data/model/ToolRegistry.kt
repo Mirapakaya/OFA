@@ -44,6 +44,11 @@ object ToolRegistry {
         register(id = "text_deduplicator", title = "Text Deduplicator", cat = ToolCategory.DOCUMENT, icon = Icons.Default.ContentCut, type = ToolType.TEXT_PROCESSOR)
         register(id = "lorem_ipsum", title = "Lorem Ipsum Generator", cat = ToolCategory.DOCUMENT, icon = Icons.Default.ShortText, type = ToolType.GENERATOR)
         register(id = "markdown_to_html", title = "Markdown to HTML", cat = ToolCategory.DOCUMENT, icon = Icons.Default.Html, type = ToolType.TEXT_PROCESSOR)
+        register(id = "find_replace", title = "Find & Replace", cat = ToolCategory.DOCUMENT, icon = Icons.Default.FindReplace, type = ToolType.TEXT_PROCESSOR)
+        register(id = "remove_empty_lines", title = "Remove Empty Lines", cat = ToolCategory.DOCUMENT, icon = Icons.Default.ClearAll, type = ToolType.TEXT_PROCESSOR)
+        register(id = "shuffle_lines", title = "Shuffle Lines", cat = ToolCategory.DOCUMENT, icon = Icons.Default.Shuffle, type = ToolType.TEXT_PROCESSOR)
+        register(id = "line_number_adder", title = "Line Number Adder", cat = ToolCategory.DOCUMENT, icon = Icons.Default.FormatListNumbered, type = ToolType.TEXT_PROCESSOR)
+        register(id = "palindrome_checker", title = "Palindrome Checker", cat = ToolCategory.DOCUMENT, icon = Icons.Default.Repeat, type = ToolType.TEXT_PROCESSOR)
 
         // Developer
         register(id = "json_formatter", title = "JSON Formatter", cat = ToolCategory.DEVELOPER, icon = Icons.Default.DataObject, type = ToolType.TEXT_PROCESSOR)

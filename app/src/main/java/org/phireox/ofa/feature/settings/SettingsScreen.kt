@@ -43,7 +43,7 @@ fun SettingsScreen(onBack: () -> Unit, onSubscriptionClick: () -> Unit) {
     val prefs = remember { PrefsDataStore(context) }
     val scope = rememberCoroutineScope()
     val themeMode by prefs.themeMode.collectAsState(initial = ThemeMode.SYSTEM)
-    val dynamic by prefs.dynamicColor.collectAsState(initial = true)
+    val dynamic by prefs.dynamicColor.collectAsState(initial = false)
     val premium by prefs.isPremium.collectAsState(initial = false)
     var expanded by remember { mutableStateOf(false) }
 
