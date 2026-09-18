@@ -64,7 +64,7 @@ fun OFAApp() {
                 }
             }
         }
-    ) { _ ->
-        OFANavHost(navController = navController)
+    ) { paddingValues ->
+        OFANavHost(navController = navController, modifier = androidx.compose.ui.Modifier.padding(paddingValues))
     }
 }
