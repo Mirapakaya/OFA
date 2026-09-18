@@ -97,7 +97,7 @@ object ToolProcessor {
             "remove_empty_lines" -> ToolResult.Text(input.lines().filter { it.isNotBlank() }.joinToString("\n"))
             "shuffle_lines" -> ToolResult.Text(input.lines().shuffled().joinToString("\n"))
             "line_number_adder" -> ToolResult.Text(input.lines().mapIndexed { i, line -> "${i + 1}: $line" }.joinToString("\n"))
-            "palindrome_checker" -> ToolResult.Text("${if (input.lowercase() == input.lowercase().reversed()) \"Palindrome\" else \"Not a palindrome\"}")
+            "palindrome_checker" -> ToolResult.Text(checkPalindrome(input))
             "slug_generator" -> ToolResult.Text(generateSlug(input))
             "morse_converter" -> ToolResult.Text(convertMorse(input))
             "number_base_converter" -> ToolResult.Text(convertBase(input, params["fromBase"] ?: "10", params["toBase"] ?: "2"))
@@ -564,6 +564,10 @@ object ToolProcessor {
         return 0.2126 * channel(r) + 0.7152 * channel(g) + 0.0722 * channel(b)
     }
 
+
+    private fun checkPalindrome(input: String): String {
+        return if (input.lowercase() == input.lowercase().reversed()) "Palindrome" else "Not a palindrome"
+    }
 
     private fun generateSlug(input: String): String {
         return input.lowercase()

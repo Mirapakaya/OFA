@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.dp
 import org.phireox.ofa.data.model.ToolCategory
 
 @Composable
-fun CategoryCard(category: ToolCategory, title: String, count: Int, onClick: () -> Unit, modifier: Modifier = Modifier) {
+fun CategoryCard(category: ToolCategory, title: String, count: Int, modifier: Modifier = Modifier, onClick: () -> Unit) {
     Card(
         onClick = onClick,
         modifier = modifier.fillMaxWidth(),

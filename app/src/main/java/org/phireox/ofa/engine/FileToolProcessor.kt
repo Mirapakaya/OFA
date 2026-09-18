@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.Matrix
 import android.graphics.pdf.PdfDocument
 import android.graphics.pdf.PdfRenderer
+import android.media.ExifInterface
 import android.net.Uri
 import com.tom_roush.pdfbox.pdmodel.PDDocument
 import org.phireox.ofa.data.model.Tool
@@ -92,7 +93,9 @@ object FileToolProcessor {
             val page = renderer.openPage(i)
             val pageInfo = PdfDocument.PageInfo.Builder(page.width, page.height, i + 1).create()
             val docPage = document.startPage(pageInfo)
-            page.render(docPage.canvas, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
+            val pageBitmap = Bitmap.createBitmap(page.width, page.height, Bitmap.Config.ARGB_8888)
+            page.render(pageBitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
+            docPage.canvas.drawBitmap(pageBitmap, 0f, 0f, null)
             page.close()
             document.finishPage(docPage)
             val file = File(outDir, "page_${i + 1}.pdf")

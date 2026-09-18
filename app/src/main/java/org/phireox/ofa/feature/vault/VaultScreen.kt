@@ -53,7 +53,7 @@ import org.phireox.ofa.data.model.VaultItemType
 @Composable
 fun VaultScreen(onBack: () -> Unit) {
     val context = LocalContext.current
-    val viewModel: VaultViewModel = viewModel(factory = androidx.lifecycle.viewmodel.ViewModelProvider.AndroidViewModelFactory.getInstance(context.applicationContext as Application))
+    val viewModel: VaultViewModel = viewModel(factory = androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.getInstance(context.applicationContext as Application))
     val clipboard = LocalClipboardManager.current
     var showDialog by remember { mutableStateOf(false) }
     var editing by remember { mutableStateOf<VaultItem?>(null) }
