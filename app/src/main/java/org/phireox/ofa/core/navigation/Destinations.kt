@@ -13,6 +13,7 @@ sealed class Destination(val route: String) {
     data object Privacy : Destination("privacy")
     data object Subscription : Destination("subscription")
     data object Legal : Destination("legal")
+    data object Vault : Destination("vault")
     data object Tool : Destination("tool/{toolId}") {
         fun createRoute(toolId: String) = "tool/$toolId"
     }

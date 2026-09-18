@@ -18,6 +18,7 @@ import org.phireox.ofa.feature.search.SearchScreen
 import org.phireox.ofa.feature.settings.SettingsScreen
 import org.phireox.ofa.feature.subscription.SubscriptionScreen
 import org.phireox.ofa.feature.tool.ToolDetailScreen
+import org.phireox.ofa.feature.vault.VaultScreen
 
 @Composable
 fun OFANavHost(navController: NavHostController, modifier: Modifier = Modifier) {
@@ -75,6 +76,9 @@ fun OFANavHost(navController: NavHostController, modifier: Modifier = Modifier) 
         }
         composable(Destination.Privacy.route) {
             PrivacyDashboardScreen { navController.popBackStack() }
+        }
+        composable(Destination.Vault.route) {
+            VaultScreen { navController.popBackStack() }
         }
     }
 }
