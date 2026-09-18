@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -27,7 +28,7 @@ import org.phireox.ofa.data.local.PrefsDataStore
 import org.phireox.ofa.data.model.ToolCategory
 import org.phireox.ofa.data.model.ToolRegistry
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun CategoryDetailScreen(categoryKey: String, onBack: () -> Unit, onToolClick: (String) -> Unit) {
     val category = ToolCategory.entries.find { it.key == categoryKey } ?: return
