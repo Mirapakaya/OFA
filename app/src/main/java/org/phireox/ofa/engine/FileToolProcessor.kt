@@ -142,7 +142,7 @@ object FileToolProcessor {
                     ExifInterface.TAG_IMAGE_LENGTH to "Height",
                     ExifInterface.TAG_F_NUMBER to "Aperture",
                     ExifInterface.TAG_EXPOSURE_TIME to "Exposure",
-                    ExifInterface.TAG_ISO to "ISO",
+                    ExifInterface.TAG_ISO_SPEED to "ISO",
                     ExifInterface.TAG_FOCAL_LENGTH to "Focal length",
                     ExifInterface.TAG_GPS_LATITUDE to "Latitude",
                     ExifInterface.TAG_GPS_LONGITUDE to "Longitude"
