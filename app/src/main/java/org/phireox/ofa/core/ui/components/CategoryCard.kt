@@ -15,10 +15,10 @@ import androidx.compose.ui.unit.dp
 import org.phireox.ofa.data.model.ToolCategory
 
 @Composable
-fun CategoryCard(category: ToolCategory, title: String, count: Int, onClick: () -> Unit) {
+fun CategoryCard(category: ToolCategory, title: String, count: Int, onClick: () -> Unit, modifier: Modifier = Modifier) {
     Card(
         onClick = onClick,
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
     ) {
         Column(modifier = Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {

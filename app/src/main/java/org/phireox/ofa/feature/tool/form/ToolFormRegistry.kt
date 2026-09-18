@@ -7,7 +7,8 @@ enum class FieldType {
     INTEGER,
     BOOLEAN,
     DROPDOWN,
-    DATE
+    DATE,
+    FILE
 }
 
 data class FieldSpec(
@@ -302,42 +303,42 @@ object ToolFormRegistry {
         "mime_detector",
         "zip_extractor",
         "duplicate_finder" -> listOf(
-            FieldSpec("file", "File", FieldType.TEXT)
+            FieldSpec("file", "File", FieldType.FILE)
         )
 
         // Image processors with extra parameters
         "image_compress" -> listOf(
-            FieldSpec("file", "File", FieldType.TEXT),
+            FieldSpec("file", "File", FieldType.FILE),
             FieldSpec("quality", "Quality", FieldType.INTEGER, defaultValue = "80")
         )
 
         "image_resize" -> listOf(
-            FieldSpec("file", "File", FieldType.TEXT),
+            FieldSpec("file", "File", FieldType.FILE),
             FieldSpec("width", "Width", FieldType.INTEGER),
             FieldSpec("height", "Height", FieldType.INTEGER)
         )
 
         "image_rotate" -> listOf(
-            FieldSpec("file", "File", FieldType.TEXT),
+            FieldSpec("file", "File", FieldType.FILE),
             FieldSpec("angle", "Angle", FieldType.INTEGER, defaultValue = "90")
         )
 
         "image_flip" -> listOf(
-            FieldSpec("file", "File", FieldType.TEXT),
+            FieldSpec("file", "File", FieldType.FILE),
             FieldSpec("horizontal", "Horizontal", FieldType.BOOLEAN, defaultValue = "true")
         )
 
         "image_crop" -> listOf(
-            FieldSpec("file", "File", FieldType.TEXT)
+            FieldSpec("file", "File", FieldType.FILE)
         )
 
         "file_hash" -> listOf(
-            FieldSpec("file", "File", FieldType.TEXT),
+            FieldSpec("file", "File", FieldType.FILE),
             FieldSpec("algo", "Algorithm", defaultValue = "SHA-256")
         )
 
         "zip_creator" -> listOf(
-            FieldSpec("file", "File", FieldType.TEXT)
+            FieldSpec("file", "File", FieldType.FILE)
         )
 
         // Provider / temporary / communication tools with no local parameters

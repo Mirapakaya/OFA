@@ -62,9 +62,9 @@ fun HomeScreen(
             Text("One For All", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.padding(16.dp))
             Text("Recently used", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(horizontal = 16.dp))
             LazyRow(contentPadding = PaddingValues(16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                items(recent) { id ->
+                items(recent, key = { it }) { id ->
                     ToolRegistry.byId(id)?.let { tool ->
-                        ToolCard(tool = tool, isFavorite = favorites.contains(tool.id), onClick = { onToolClick(tool.id) }, onToggleFavorite = {})
+                        ToolCard(tool = tool, isFavorite = favorites.contains(tool.id), onClick = { onToolClick(tool.id) }, onToggleFavorite = {}, modifier = Modifier.animateItemPlacement())
                     }
                 }
             }
@@ -75,9 +75,9 @@ fun HomeScreen(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(ToolCategory.entries.toList()) { cat ->
+                items(ToolCategory.entries.toList(), key = { it.key }) { cat ->
                     val count = ToolRegistry.byCategory(cat).size
-                    CategoryCard(category = cat, title = stringResource(id = cat.titleRes), count = count) { onToolClick(ToolRegistry.byCategory(cat).firstOrNull()?.id ?: return@CategoryCard) }
+                    CategoryCard(category = cat, title = stringResource(id = cat.titleRes), count = count, modifier = Modifier.animateItemPlacement()) { onToolClick(ToolRegistry.byCategory(cat).firstOrNull()?.id ?: return@CategoryCard) }
                 }
             }
         }
