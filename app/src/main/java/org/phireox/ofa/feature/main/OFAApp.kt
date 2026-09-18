@@ -1,9 +1,7 @@
 package org.phireox.ofa.feature.main
 
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Category
-import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
@@ -14,7 +12,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Modifier
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -27,8 +24,8 @@ fun OFAApp() {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
-    val bottomRoutes = listOf(Destination.Home.route, Destination.Search.route, Destination.Categories.route, Destination.Settings.route)
-    val showBottomBar = bottomRoutes.contains(currentDestination?.route)
+    val bottomRoutes = setOf(Destination.Home.route, Destination.Search.route, Destination.Categories.route, Destination.Settings.route)
+    val showBottomBar = currentDestination?.route in bottomRoutes
 
     Scaffold(
         bottomBar = {
@@ -38,7 +35,13 @@ fun OFAApp() {
                         icon = { Icon(Icons.Default.Home, contentDescription = "Home") },
                         label = { Text("Home") },
                         selected = currentDestination?.hierarchy?.any { it.route == Destination.Home.route } == true,
-                        onClick = { navController.navigate(Destination.Home.route) { popUpTo(navController.graph.findStartDestination().id) { saveState = true } launchSingleTop = true restoreState = true } }
+                        onClick = {
+                            navController.navigate(Destination.Home.route) {
+                                popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        }
                     )
                     NavigationBarItem(
                         icon = { Icon(Icons.Default.Search, contentDescription = "Search") },
@@ -61,7 +64,7 @@ fun OFAApp() {
                 }
             }
         }
-    ) { padding ->
+    ) { _ ->
         OFANavHost(navController = navController)
     }
 }

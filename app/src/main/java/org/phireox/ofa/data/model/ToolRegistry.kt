@@ -1,7 +1,9 @@
 package org.phireox.ofa.data.model
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.*
 import androidx.compose.material.icons.filled.*
+import androidx.compose.ui.graphics.vector.ImageVector
 
 object ToolRegistry {
 
@@ -46,8 +48,8 @@ object ToolRegistry {
         register(id = "json_minifier", title = "JSON Minifier", cat = ToolCategory.DEVELOPER, icon = Icons.Default.DataObject, type = ToolType.TEXT_PROCESSOR)
         register(id = "uuid_generator", title = "UUID Generator", cat = ToolCategory.DEVELOPER, icon = Icons.Default.Fingerprint, type = ToolType.GENERATOR)
         register(id = "hash_generator", title = "Hash Generator", cat = ToolCategory.DEVELOPER, icon = Icons.Default.Tag, type = ToolType.TEXT_PROCESSOR)
-        register(id = "base64_encoder", title = "Base64 Encoder", cat = ToolCategory.DEVELOPER, icon = Icons.Default.Encryption, type = ToolType.TEXT_PROCESSOR)
-        register(id = "base64_decoder", title = "Base64 Decoder", cat = ToolCategory.DEVELOPER, icon = Icons.Default.Encryption, type = ToolType.TEXT_PROCESSOR)
+        register(id = "base64_encoder", title = "Base64 Encoder", cat = ToolCategory.DEVELOPER, icon = Icons.Default.VpnKey, type = ToolType.TEXT_PROCESSOR)
+        register(id = "base64_decoder", title = "Base64 Decoder", cat = ToolCategory.DEVELOPER, icon = Icons.Default.VpnKey, type = ToolType.TEXT_PROCESSOR)
         register(id = "url_encoder", title = "URL Encoder", cat = ToolCategory.DEVELOPER, icon = Icons.Default.Link, type = ToolType.TEXT_PROCESSOR)
         register(id = "url_decoder", title = "URL Decoder", cat = ToolCategory.DEVELOPER, icon = Icons.Default.Link, type = ToolType.TEXT_PROCESSOR)
         register(id = "timestamp_converter", title = "Timestamp Converter", cat = ToolCategory.DEVELOPER, icon = Icons.Default.Schedule, type = ToolType.CALCULATOR)

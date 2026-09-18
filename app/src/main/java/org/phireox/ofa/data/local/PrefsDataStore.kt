@@ -5,8 +5,8 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -31,9 +31,7 @@ class PrefsDataStore(context: Context) {
         dataStore.edit { it[Keys.DYNAMIC_COLOR] = enabled }
     }
 
-    val favorites: Flow<Set<String>> = dataStore.data.map { prefs ->
-        prefs[Keys.FAVORITES]?.toSet() ?: emptySet()
-    }
+    val favorites: Flow<Set<String>> = dataStore.data.map { it[Keys.FAVORITES] ?: emptySet() }
 
     suspend fun toggleFavorite(toolId: String) {
         dataStore.edit { prefs ->
@@ -71,7 +69,7 @@ class PrefsDataStore(context: Context) {
     private object Keys {
         val THEME_MODE = stringPreferencesKey("theme_mode")
         val DYNAMIC_COLOR = booleanPreferencesKey("dynamic_color")
-        val FAVORITES = stringPreferencesKey("favorites")
+        val FAVORITES = stringSetPreferencesKey("favorites")
         val RECENT_TOOLS = stringPreferencesKey("recent_tools")
     }
 }
