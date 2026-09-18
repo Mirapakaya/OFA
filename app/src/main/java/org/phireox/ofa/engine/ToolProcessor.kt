@@ -106,7 +106,9 @@ object ToolProcessor {
             "random_number" -> {
                 val min = params["min"]?.toIntOrNull() ?: 0
                 val max = params["max"]?.toIntOrNull() ?: 100
-                ToolResult.Text((min..max).random().toString())
+                val a = min.coerceAtMost(max)
+                val b = min.coerceAtLeast(max)
+                ToolResult.Text((a..b).random().toString())
             }
             else -> ToolResult.Text("Generated output")
         }

@@ -1,5 +1,8 @@
 package org.phireox.ofa.feature.tool
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -106,6 +109,25 @@ fun ToolDetailScreen(
                                 minLines = 3
                             )
                             Button(onClick = { viewModel.process(parseParams(state.input)) }, modifier = Modifier.fillMaxWidth()) { Text("Calculate") }
+                        }
+                        ToolType.FILE_PROCESSOR, ToolType.PDF_PROCESSOR, ToolType.IMAGE_PROCESSOR -> {
+                            val mime = when (tool.toolType) {
+                                ToolType.PDF_PROCESSOR -> arrayOf("application/pdf")
+                                ToolType.IMAGE_PROCESSOR -> arrayOf("image/*")
+                                else -> arrayOf("*/*")
+                            }
+                            val launcher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
+                                uri?.let { viewModel.processFile(it, parseParams(state.input)) }
+                            }
+                            Text("Pick a file to process. Optional params as key=value,comma separated.")
+                            OutlinedTextField(
+                                value = state.input,
+                                onValueChange = viewModel::updateInput,
+                                label = { Text("Parameters") },
+                                modifier = Modifier.fillMaxWidth(),
+                                minLines = 3
+                            )
+                            Button(onClick = { launcher.launch(mime) }, modifier = Modifier.fillMaxWidth()) { Text("Pick File") }
                         }
                         else -> {
                             OutlinedTextField(
