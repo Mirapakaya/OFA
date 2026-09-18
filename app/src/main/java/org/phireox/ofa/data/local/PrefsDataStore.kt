@@ -56,6 +56,12 @@ class PrefsDataStore(context: Context) {
 
     val isPremium: Flow<Boolean> = dataStore.data.map { it[Keys.IS_PREMIUM] == true }
 
+    val onboardingComplete: Flow<Boolean> = dataStore.data.map { it[Keys.ONBOARDING_COMPLETE] == true }
+
+    suspend fun setOnboardingComplete(complete: Boolean) {
+        dataStore.edit { it[Keys.ONBOARDING_COMPLETE] = complete }
+    }
+
     suspend fun setPremium(premium: Boolean) {
         dataStore.edit { it[Keys.IS_PREMIUM] = premium }
     }
@@ -78,6 +84,7 @@ class PrefsDataStore(context: Context) {
         val FAVORITES = stringSetPreferencesKey("favorites")
         val RECENT_TOOLS = stringPreferencesKey("recent_tools")
         val IS_PREMIUM = booleanPreferencesKey("is_premium")
+        val ONBOARDING_COMPLETE = booleanPreferencesKey("onboarding_complete")
     }
 }
 

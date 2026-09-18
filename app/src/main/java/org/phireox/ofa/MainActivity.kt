@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.collectAsState
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.razorpay.PaymentData
 import com.razorpay.PaymentResultWithDataListener
 import org.phireox.ofa.core.billing.RazorpayResultBus
@@ -13,10 +14,12 @@ import org.phireox.ofa.core.theme.OFATheme
 import org.phireox.ofa.data.local.PrefsDataStore
 import org.phireox.ofa.data.local.ThemeMode
 import org.phireox.ofa.feature.main.OFAApp
+import org.phireox.ofa.feature.onboarding.OnboardingScreen
 
 class MainActivity : ComponentActivity(), PaymentResultWithDataListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        installSplashScreen()
         enableEdgeToEdge()
         val prefs = PrefsDataStore(this)
         setContent {
@@ -27,8 +30,13 @@ class MainActivity : ComponentActivity(), PaymentResultWithDataListener {
                 ThemeMode.DARK -> true
                 ThemeMode.SYSTEM -> isSystemInDarkTheme()
             }
+            val onboardingComplete = prefs.onboardingComplete.collectAsState(initial = false).value
             OFATheme(darkTheme = darkTheme, dynamicColor = dynamic) {
-                OFAApp()
+                if (onboardingComplete) {
+                    OFAApp()
+                } else {
+                    OnboardingScreen(prefs = prefs, onFinished = {})
+                }
             }
         }
     }
