@@ -18,6 +18,11 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+
+        val razorpayKey = System.getenv("RAZORPAY_KEY") ?: ""
+        val orderProviderUrl = System.getenv("RAZORPAY_ORDER_PROVIDER_URL") ?: ""
+        buildConfigField("String", "RAZORPAY_KEY", "\"$razorpayKey\"")
+        buildConfigField("String", "RAZORPAY_ORDER_PROVIDER_URL", "\"$orderProviderUrl\"")
     }
 
     buildTypes {
@@ -28,7 +33,6 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            // CI / local release build uses debug signing for verification only.
             signingConfig = signingConfigs.getByName("debug")
         }
     }
@@ -44,6 +48,7 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 
     composeOptions {
@@ -85,8 +90,8 @@ dependencies {
     // QR/Barcode
     implementation("com.google.zxing:core:3.5.3")
 
-    // Google Play Billing
-    implementation("com.android.billingclient:billing-ktx:6.2.0")
+    // Payments via Razorpay
+    implementation("com.razorpay:checkout:1.6.39")
 
     // Testing
     testImplementation(composeBom)

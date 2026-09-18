@@ -54,6 +54,12 @@ class PrefsDataStore(context: Context) {
         }
     }
 
+    val isPremium: Flow<Boolean> = dataStore.data.map { it[Keys.IS_PREMIUM] == true }
+
+    suspend fun setPremium(premium: Boolean) {
+        dataStore.edit { it[Keys.IS_PREMIUM] = premium }
+    }
+
     suspend fun clearRecents() {
         dataStore.edit { it.remove(Keys.RECENT_TOOLS) }
     }
@@ -71,6 +77,7 @@ class PrefsDataStore(context: Context) {
         val DYNAMIC_COLOR = booleanPreferencesKey("dynamic_color")
         val FAVORITES = stringSetPreferencesKey("favorites")
         val RECENT_TOOLS = stringPreferencesKey("recent_tools")
+        val IS_PREMIUM = booleanPreferencesKey("is_premium")
     }
 }
 

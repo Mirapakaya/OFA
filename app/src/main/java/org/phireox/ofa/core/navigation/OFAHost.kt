@@ -12,6 +12,7 @@ import org.phireox.ofa.feature.home.HomeScreen
 import org.phireox.ofa.feature.privacy.PrivacyDashboardScreen
 import org.phireox.ofa.feature.search.SearchScreen
 import org.phireox.ofa.feature.settings.SettingsScreen
+import org.phireox.ofa.feature.subscription.SubscriptionScreen
 import org.phireox.ofa.feature.tool.ToolDetailScreen
 
 @Composable
@@ -49,7 +50,13 @@ fun OFANavHost(navController: NavHostController, modifier: Modifier = Modifier) 
             ToolDetailScreen(toolId = id) { navController.popBackStack() }
         }
         composable(Destination.Settings.route) {
-            SettingsScreen { navController.popBackStack() }
+            SettingsScreen(
+                onBack = { navController.popBackStack() },
+                onSubscriptionClick = { navController.navigate(Destination.Subscription.route) }
+            )
+        }
+        composable(Destination.Subscription.route) {
+            SubscriptionScreen { navController.popBackStack() }
         }
         composable(Destination.About.route) {
             AboutScreen { navController.popBackStack() }

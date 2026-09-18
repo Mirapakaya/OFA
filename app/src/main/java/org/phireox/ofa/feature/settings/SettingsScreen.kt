@@ -38,12 +38,13 @@ import org.phireox.ofa.data.local.ThemeMode
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(onBack: () -> Unit) {
+fun SettingsScreen(onBack: () -> Unit, onSubscriptionClick: () -> Unit) {
     val context = LocalContext.current
     val prefs = remember { PrefsDataStore(context) }
     val scope = rememberCoroutineScope()
     val themeMode by prefs.themeMode.collectAsState(initial = ThemeMode.SYSTEM)
     val dynamic by prefs.dynamicColor.collectAsState(initial = true)
+    val premium by prefs.isPremium.collectAsState(initial = false)
     var expanded by remember { mutableStateOf(false) }
 
     Scaffold(
@@ -71,6 +72,9 @@ fun SettingsScreen(onBack: () -> Unit) {
                 Text("Dynamic color")
                 Switch(checked = dynamic, onCheckedChange = { scope.launch { prefs.setDynamicColor(it) } })
             }
+            Text("Premium", style = MaterialTheme.typography.titleMedium)
+            Text("Status: ${if (premium) "Premium" else "Free"}")
+            TextButton(onClick = onSubscriptionClick) { Text("Manage subscription") }
             Text("Privacy", style = MaterialTheme.typography.titleMedium)
             TextButton(onClick = { scope.launch { prefs.clearAll() } }) { Text("Delete all OFA data") }
         }

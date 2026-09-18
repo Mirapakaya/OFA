@@ -2,3 +2,5 @@
 -keep public class org.phireox.ofa.* { *; }
 -dontwarn com.google.zxing.**
 -dontwarn com.tom_roush.pdfbox.**
+-dontwarn com.razorpay.**
+-keep class com.razorpay.** { *; }
