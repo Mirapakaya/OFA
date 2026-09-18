@@ -5,7 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.Matrix
 import android.graphics.pdf.PdfDocument
 import android.graphics.pdf.PdfRenderer
-import android.media.ExifInterface
+import androidx.exifinterface.media.ExifInterface
 import android.net.Uri
 import com.tom_roush.pdfbox.pdmodel.PDDocument
 import org.phireox.ofa.data.model.Tool
@@ -133,7 +133,7 @@ object FileToolProcessor {
     private fun exifViewer(context: Context, uri: Uri): ToolResult {
         return try {
             context.contentResolver.openInputStream(uri)?.use { stream ->
-                val exif = android.media.ExifInterface(stream)
+                val exif = ExifInterface(stream)
                 val tags = listOf(
                     ExifInterface.TAG_MAKE to "Make",
                     ExifInterface.TAG_MODEL to "Model",
