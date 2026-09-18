@@ -1,6 +1,7 @@
 package org.phireox.ofa.core.billing
 
 import android.content.Context
+import android.os.Build
 import android.telephony.TelephonyManager
 import java.util.Currency
 import java.util.Locale
@@ -28,7 +29,18 @@ object CurrencyHelper {
             val sim = tm?.simCountryIso
             if (!sim.isNullOrBlank()) return sim
         } catch (_: Exception) { }
-        return context.resources.configuration.locales.get(0)?.country ?: "US"
+        val locale = getLocale(context)
+        return locale.country ?: "US"
+    }
+
+    private fun getLocale(context: Context): Locale {
+        val configuration = context.resources.configuration
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            configuration.locales.get(0)
+        } else {
+            @Suppress("DEPRECATION")
+            configuration.locale
+        }
     }
 
     fun formatPrice(amount: Long, currencyCode: String): String {
