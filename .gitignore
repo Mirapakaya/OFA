@@ -9,3 +9,4 @@ local.properties
 *.iml
 *.apk
 *.aab
+.qwen/tmp/
