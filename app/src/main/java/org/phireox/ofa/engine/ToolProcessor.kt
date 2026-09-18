@@ -245,6 +245,79 @@ object ToolProcessor {
                     val cost = area * rate
                     ToolResult.Text("Estimated cost: ${"%.2f".format(cost)}")
                 }
+                "emi_calculator" -> {
+                    val principal = params["principal"]?.toDoubleOrNull() ?: 0.0
+                    val annualRate = params["rate"]?.toDoubleOrNull() ?: 0.0
+                    val months = params["months"]?.toIntOrNull() ?: 0
+                    if (months <= 0 || annualRate < 0) {
+                        ToolResult.Text("EMI: 0")
+                    } else {
+                        val r = annualRate / 12 / 100
+                        val emi = principal * r * Math.pow(1 + r, months.toDouble()) / (Math.pow(1 + r, months.toDouble()) - 1)
+                        val total = emi * months
+                        val interest = total - principal
+                        ToolResult.Text("EMI: ${"%.2f".format(emi)}\nTotal interest: ${"%.2f".format(interest)}\nTotal payment: ${"%.2f".format(total)}")
+                    }
+                }
+                "bmi_calculator" -> {
+                    val weight = params["weight"]?.toDoubleOrNull() ?: 0.0
+                    val height = params["height"]?.toDoubleOrNull() ?: 0.0
+                    val bmi = if (height > 0) weight / (height * height) else 0.0
+                    val category = when (bmi) {
+                        in 0.0..<18.5 -> "Underweight"
+                        in 18.5..<25.0 -> "Normal"
+                        in 25.0..<30.0 -> "Overweight"
+                        else -> if (bmi >= 30.0) "Obese" else ""
+                    }
+                    ToolResult.Text("BMI: ${"%.2f".format(bmi)}\nCategory: $category")
+                }
+                "percentage_calculator" -> {
+                    val total = params["total"]?.toDoubleOrNull() ?: 0.0
+                    val value = params["value"]?.toDoubleOrNull() ?: 0.0
+                    val percent = if (total != 0.0) (value / total) * 100 else 0.0
+                    val reverse = (total * value) / 100
+                    ToolResult.Text("$value is ${"%.2f".format(percent)}% of $total\n$value% of $total = ${"%.2f".format(reverse)}")
+                }
+                "tip_calculator" -> {
+                    val bill = params["bill"]?.toDoubleOrNull() ?: 0.0
+                    val tip = params["tip"]?.toDoubleOrNull() ?: 10.0
+                    val split = params["split"]?.toIntOrNull() ?: 1
+                    val tipAmount = bill * tip / 100
+                    val total = bill + tipAmount
+                    val perPerson = if (split > 0) total / split else total
+                    ToolResult.Text("Tip: ${"%.2f".format(tipAmount)}\nTotal: ${"%.2f".format(total)}\nPer person ($split): ${"%.2f".format(perPerson)}")
+                }
+                "date_difference" -> {
+                    val sdf = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
+                    val d1 = params["from"]?.let { runCatching { sdf.parse(it)?.time }.getOrNull() }
+                    val d2 = params["to"]?.let { runCatching { sdf.parse(it)?.time }.getOrNull() }
+                    if (d1 == null || d2 == null) {
+                        ToolResult.Text("Enter from and to as yyyy-MM-dd")
+                    } else {
+                        val diff = kotlin.math.abs(d2 - d1) / (1000 * 60 * 60 * 24)
+                        ToolResult.Text("Days: $diff")
+                    }
+                }
+                "age_calculator" -> {
+                    val sdf = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
+                    val birth = params["birth"]?.let { runCatching { sdf.parse(it)?.time }.getOrNull() }
+                    val now = System.currentTimeMillis()
+                    if (birth == null) {
+                        ToolResult.Text("Enter birth as yyyy-MM-dd")
+                    } else {
+                        val diffDays = (now - birth) / (1000 * 60 * 60 * 24)
+                        val years = diffDays / 365
+                        val months = (diffDays % 365) / 30
+                        ToolResult.Text("Age: $years years, $months months")
+                    }
+                }
+                "unit_converter" -> {
+                    val value = params["value"]?.toDoubleOrNull() ?: 0.0
+                    val from = params["from"] ?: ""
+                    val to = params["to"] ?: ""
+                    val result = convertUnit(value, from, to)
+                    ToolResult.Text("$value $from = $result $to")
+                }
                 else -> ToolResult.Text("Result: ${params.values.joinToString()}")
             }
         } catch (e: Exception) {
@@ -449,5 +522,58 @@ object ToolProcessor {
             return if (v <= 0.03928) v / 12.92 else Math.pow((v + 0.055) / 1.055, 2.4)
         }
         return 0.2126 * channel(r) + 0.7152 * channel(g) + 0.0722 * channel(b)
+    }
+
+    private fun convertUnit(value: Double, from: String, to: String): Double {
+        val lowerFrom = from.lowercase()
+        val lowerTo = to.lowercase()
+        fun lengthToMeters(v: Double, unit: String): Double {
+            return when (unit) {
+                "m" -> v
+                "km" -> v * 1000
+                "cm" -> v / 100
+                "mm" -> v / 1000
+                "in", "inch" -> v * 0.0254
+                "ft", "feet" -> v * 0.3048
+                "mi", "mile" -> v * 1609.34
+                else -> v
+            }
+        }
+        fun weightToGrams(v: Double, unit: String): Double {
+            return when (unit) {
+                "kg" -> v * 1000
+                "g" -> v
+                "mg" -> v / 1000
+                "lb" -> v * 453.592
+                "oz" -> v * 28.3495
+                else -> v
+            }
+        }
+        val base = when (lowerFrom) {
+            "m", "km", "cm", "mm", "in", "inch", "ft", "feet", "mi", "mile" -> lengthToMeters(value, lowerFrom)
+            "kg", "g", "mg", "lb", "oz" -> weightToGrams(value, lowerFrom)
+            "c" -> value
+            "f" -> (value - 32) * 5 / 9
+            "k" -> value - 273.15
+            else -> value
+        }
+        return when (lowerTo) {
+            "m" -> lengthToMeters(base, "m")
+            "km" -> lengthToMeters(base, "m") / 1000
+            "cm" -> lengthToMeters(base, "m") * 100
+            "mm" -> lengthToMeters(base, "m") * 1000
+            "in", "inch" -> lengthToMeters(base, "m") / 0.0254
+            "ft", "feet" -> lengthToMeters(base, "m") / 0.3048
+            "mi", "mile" -> lengthToMeters(base, "m") / 1609.34
+            "kg" -> weightToGrams(base, "g") / 1000
+            "g" -> weightToGrams(base, "g")
+            "mg" -> weightToGrams(base, "g") * 1000
+            "lb" -> weightToGrams(base, "g") / 453.592
+            "oz" -> weightToGrams(base, "g") / 28.3495
+            "c" -> base
+            "f" -> base * 9 / 5 + 32
+            "k" -> base + 273.15
+            else -> base
+        }
     }
 }

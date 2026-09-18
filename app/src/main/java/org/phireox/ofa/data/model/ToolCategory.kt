@@ -27,6 +27,7 @@ enum class ToolCategory(
     ENGINEERING("engineering", R.string.category_engineering, Icons.Default.Construction),
     QR("qr", R.string.category_qr, Icons.Default.QrCode),
     FILES("files", R.string.category_files, Icons.Default.Folder),
+    CALCULATORS("calculators", R.string.category_calculators, Icons.Default.Calculate),
     SOCIAL("social", R.string.category_social, Icons.Default.Share),
     TEMPORARY("temporary", R.string.category_temporary, Icons.Default.HourglassEmpty),
     COMMUNICATION("communication", R.string.category_communication, Icons.Default.Chat),

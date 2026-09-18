@@ -122,6 +122,15 @@ object ToolRegistry {
         register(id = "zip_extractor", title = "ZIP Extractor", cat = ToolCategory.FILES, icon = Icons.Default.FolderZip, type = ToolType.FILE_PROCESSOR)
         register(id = "duplicate_finder", title = "Duplicate File Finder", cat = ToolCategory.FILES, icon = Icons.Default.ContentCopy, type = ToolType.FILE_PROCESSOR, premium = true)
 
+        // Calculators
+        register(id = "emi_calculator", title = "EMI Calculator", cat = ToolCategory.CALCULATORS, icon = Icons.Default.AccountBalance, type = ToolType.CALCULATOR)
+        register(id = "bmi_calculator", title = "BMI Calculator", cat = ToolCategory.CALCULATORS, icon = Icons.Default.Favorite, type = ToolType.CALCULATOR)
+        register(id = "percentage_calculator", title = "Percentage Calculator", cat = ToolCategory.CALCULATORS, icon = Icons.Default.Percent, type = ToolType.CALCULATOR)
+        register(id = "tip_calculator", title = "Tip Calculator", cat = ToolCategory.CALCULATORS, icon = Icons.Default.LocalAtm, type = ToolType.CALCULATOR)
+        register(id = "date_difference", title = "Date Difference", cat = ToolCategory.CALCULATORS, icon = Icons.Default.DateRange, type = ToolType.CALCULATOR)
+        register(id = "age_calculator", title = "Age Calculator", cat = ToolCategory.CALCULATORS, icon = Icons.Default.Cake, type = ToolType.CALCULATOR)
+        register(id = "unit_converter", title = "Unit Converter", cat = ToolCategory.CALCULATORS, icon = Icons.Default.SwapHoriz, type = ToolType.CALCULATOR)
+
         // Generators
         register(id = "random_number", title = "Random Number", cat = ToolCategory.DEVELOPER, icon = Icons.Default.Casino, type = ToolType.GENERATOR)
 
