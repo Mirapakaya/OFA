@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.Explore
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material.icons.filled.Chat
+import androidx.compose.material.icons.filled.Psychology
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material3.Icon
@@ -56,7 +57,8 @@ fun HomeScreen(
     onCompassClick: () -> Unit = {},
     onOfflineMapsClick: () -> Unit = {},
     onWeatherClick: () -> Unit = {},
-    onMessagingClick: () -> Unit = {}
+    onMessagingClick: () -> Unit = {},
+    onAiAssistantClick: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val prefs = remember { PrefsDataStore(context) }
@@ -117,6 +119,13 @@ fun HomeScreen(
                 subtitle = "Local E2EE chat",
                 icon = Icons.Filled.Chat,
                 onClick = onMessagingClick,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+            )
+            org.phireox.ofa.core.ui.components.QuickAccessCard(
+                title = "AI Assistant",
+                subtitle = "Remote provider chat",
+                icon = Icons.Filled.Psychology,
+                onClick = onAiAssistantClick,
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
             )
             if (favorites.isNotEmpty()) {

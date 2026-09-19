@@ -25,6 +25,7 @@ sealed class Destination(val route: String) {
     data object BackupRestore : Destination("backup_restore")
     data object Weather : Destination("weather")
     data object Messaging : Destination("messaging")
+    data object AiAssistant : Destination("ai_assistant")
     data object Tool : Destination("tool/{toolId}") {
         fun createRoute(toolId: String) = "tool/$toolId"
     }

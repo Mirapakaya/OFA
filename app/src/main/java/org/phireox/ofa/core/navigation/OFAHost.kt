@@ -29,6 +29,7 @@ import org.phireox.ofa.feature.maps.OfflineMapsScreen
 import org.phireox.ofa.feature.backup.BackupRestoreScreen
 import org.phireox.ofa.feature.weather.WeatherScreen
 import org.phireox.ofa.feature.messaging.MessagingScreen
+import org.phireox.ofa.feature.ai.AiAssistantScreen
 
 @Composable
 fun OFANavHost(navController: NavHostController, modifier: Modifier = Modifier) {
@@ -52,7 +53,8 @@ fun OFANavHost(navController: NavHostController, modifier: Modifier = Modifier) 
                 onCompassClick = { navController.navigate(Destination.Compass.route) },
                 onOfflineMapsClick = { navController.navigate(Destination.OfflineMaps.route) },
                 onWeatherClick = { navController.navigate(Destination.Weather.route) },
-                onMessagingClick = { navController.navigate(Destination.Messaging.route) }
+                onMessagingClick = { navController.navigate(Destination.Messaging.route) },
+                onAiAssistantClick = { navController.navigate(Destination.AiAssistant.route) }
             )
         }
         composable(Destination.Search.route) {
@@ -134,6 +136,9 @@ fun OFANavHost(navController: NavHostController, modifier: Modifier = Modifier) 
         }
         composable(Destination.Messaging.route) {
             MessagingScreen { navController.popBackStack() }
+        }
+        composable(Destination.AiAssistant.route) {
+            AiAssistantScreen { navController.popBackStack() }
         }
     }
 }
