@@ -917,7 +917,7 @@ object ToolProcessor {
     }
 
     private fun minifyXml(input: String): String {
-        return input.replace(Regex(">\s+<"), "><")
+        return input.replace(Regex(">\\s+<"), "><")
     }
 
     private fun validateXml(input: String): String {
@@ -1023,7 +1023,7 @@ services:
 
     private fun analyzeDns(input: String): String {
         val domain = input.trim().lowercase()
-        return if (domain.matches(Regex("^[a-z0-9]([a-z0-9\-]{0,61}[a-z0-9])?(\.[a-z0-9]([a-z0-9\-]{0,61}[a-z0-9])?)*\$"))) {
+        return if (domain.matches(Regex("^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?(\\.[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?)*\\$"))) {
             "Domain appears valid: $domain"
         } else {
             "Invalid domain format"
@@ -1131,42 +1131,8 @@ services:
         }
     }
 
-    private fun parseCsv(input: String): List<List<String>> {
-        return input.lines().map { it.split(",").map { v -> v.trim() } }.filter { it.isNotEmpty() && it.any { c -> c.isNotBlank() } }
-    }
-
     private fun csvToString(rows: List<List<String>>): String {
         return rows.joinToString("\n") { it.joinToString(",") }
-    }
-
-    private fun csvCleaner(input: String): String = csvToString(parseCsv(input).filter { row -> row.any { it.isNotBlank() } })
-
-    private fun csvDeduplicate(input: String): String {
-        val rows = parseCsv(input)
-        val seen = mutableSetOf<List<String>>()
-        return csvToString(rows.filter { seen.add(it) })
-    }
-
-    private fun csvSort(input: String, column: Int): String {
-        val rows = parseCsv(input)
-        if (rows.size < 2) return input
-        return csvToString(listOf(rows.first()) + rows.drop(1).sortedBy { it.getOrNull(column) ?: "" })
-    }
-
-    private fun csvFilter(input: String, column: Int, term: String): String {
-        val rows = parseCsv(input)
-        if (rows.size < 2) return input
-        return csvToString(listOf(rows.first()) + rows.drop(1).filter { it.getOrNull(column)?.contains(term, ignoreCase = true) == true })
-    }
-
-    private fun csvMerge(input: String, other: String): String = csvToString(parseCsv(input) + parseCsv(other))
-
-    private fun csvSplit(input: String, rows: Int): String {
-        val all = parseCsv(input)
-        if (all.size < 2) return input
-        val header = all.first()
-        val chunks = all.drop(1).chunked(rows.coerceAtLeast(1))
-        return chunks.joinToString("\n---\n") { chunk -> csvToString(listOf(header) + chunk) }
     }
 
     private fun csvToSql(input: String): String {
@@ -1177,16 +1143,5 @@ services:
         return "CREATE TABLE $table ($columns);\n" + rows.drop(1).joinToString("\n") { row ->
             "INSERT INTO $table ($columns) VALUES (${row.joinToString(", ") { "'$it'" }});"
         }
-    }
-
-    private fun csvColumnMap(input: String, mapping: String): String {
-        val rows = parseCsv(input)
-        if (rows.isEmpty()) return input
-        val map = mapping.split(",").associate {
-            val parts = it.split(":")
-            parts[0].trim() to (parts.getOrNull(1)?.trim() ?: parts[0].trim())
-        }
-        val newHeader = rows.first().map { map[it] ?: it }
-        return csvToString(listOf(newHeader) + rows.drop(1))
     }
 }

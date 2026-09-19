@@ -85,13 +85,15 @@ fun CompassScreen(onBack: () -> Unit) {
             verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            val compassPrimary = MaterialTheme.colorScheme.primary
+            val compassError = MaterialTheme.colorScheme.error
             Text("${azimuth.floatValue.toInt()}°", style = MaterialTheme.typography.displayLarge)
             Text(cardinalDirection(azimuth.floatValue), style = MaterialTheme.typography.headlineMedium)
             Canvas(modifier = Modifier.size(240.dp)) {
                 val center = Offset(size.width / 2, size.height / 2)
                 val radius = size.width / 2 - 20
                 drawCircle(
-                    color = MaterialTheme.colorScheme.primary,
+                    color = compassPrimary,
                     radius = radius,
                     center = center,
                     style = androidx.compose.ui.graphics.drawscope.Stroke(width = 4f)
@@ -102,15 +104,15 @@ fun CompassScreen(onBack: () -> Unit) {
                     center.y + radius * kotlin.math.sin(angle).toFloat()
                 )
                 drawLine(
-                    color = MaterialTheme.colorScheme.error,
+                    color = compassError,
                     start = center,
                     end = end,
                     strokeWidth = 8f,
                     cap = StrokeCap.Round
                 )
-                drawCircle(color = MaterialTheme.colorScheme.primary, radius = 8f, center = center)
+                drawCircle(color = compassPrimary, radius = 8f, center = center)
             }
-            Text("N", fontSize = 20.sp, color = MaterialTheme.colorScheme.error)
+            Text("N", fontSize = 20.sp, color = compassError)
             Text("Hold device flat for best accuracy.", style = MaterialTheme.typography.bodyMedium)
         }
     }

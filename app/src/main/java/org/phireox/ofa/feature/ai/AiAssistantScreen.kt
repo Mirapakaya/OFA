@@ -1,6 +1,7 @@
 package org.phireox.ofa.feature.ai
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -11,13 +12,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenu
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -69,16 +69,24 @@ fun AiAssistantScreen(onBack: () -> Unit) {
                 Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text("Provider configuration", style = MaterialTheme.typography.titleMedium)
                     Text("No AI model is bundled. Your prompts are sent to the provider you choose. The API key is stored locally.")
-                    ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }) {
+                    Box(Modifier.fillMaxWidth()) {
                         OutlinedTextField(
-                            value = provider,
+                            value = provider.replaceFirstChar { it.uppercase() },
                             onValueChange = {},
                             readOnly = true,
                             label = { Text("Provider") },
-                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                            modifier = Modifier.fillMaxWidth().menuAnchor()
+                            trailingIcon = {
+                                IconButton(onClick = { expanded = true }) {
+                                    Icon(Icons.Default.ArrowDropDown, contentDescription = null)
+                                }
+                            },
+                            modifier = Modifier.fillMaxWidth()
                         )
-                        ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                        DropdownMenu(
+                            expanded = expanded,
+                            onDismissRequest = { expanded = false },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
                             listOf("openai", "gemini", "anthropic", "custom").forEach { p ->
                                 DropdownMenuItem(text = { Text(p.replaceFirstChar { it.uppercase() }) }, onClick = { provider = p; expanded = false })
                             }
