@@ -50,7 +50,7 @@ import java.util.Locale
 fun NotesScreen(onBack: () -> Unit, onNoteClick: (String) -> Unit = {}) {
     val context = LocalContext.current
     val viewModel: NotesViewModel = viewModel(factory = NotesViewModelFactory(context.applicationContext as android.app.Application))
-    val notes by viewModel.notes.collectAsState()
+    val notes by viewModel.notes.collectAsState(initial = emptyList())
     val scope = rememberCoroutineScope()
     var query by remember { mutableStateOf("") }
 

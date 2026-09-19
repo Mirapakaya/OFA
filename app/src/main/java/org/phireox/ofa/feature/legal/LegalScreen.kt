@@ -73,58 +73,58 @@ fun LegalScreen(onBack: () -> Unit) {
     }
 }
 
-private const val PRIVACY_POLICY = """
+private val PRIVACY_POLICY = """
 OFA ("One For All") is built around a local-first architecture. Most tools process data directly on your Android device. OFA does not operate general cloud storage, user databases, or analytics warehouses for local tools. When you use network-dependent features (for example, temporary mail, temporary phone, online meetings, weather, or external AI), data is sent to the chosen third-party provider, not to OFA. We do not sell your data. Sensitive data such as passwords, vault items, and biometric-backed notes are stored on-device using Android Keystore.
 """.trimIndent()
 
-private const val TERMS_OF_SERVICE = """
+private val TERMS_OF_SERVICE = """
 By using OFA you agree to use the tools lawfully and responsibly. OFA is provided "as is" without warranties. Local tools run on your device; network tools rely on external providers and are subject to those providers' terms. Business, financial, engineering, and medical-related tools are informational only and do not replace professional advice.
 """.trimIndent()
 
-private const val TERMS_AND_CONDITIONS = """
+private val TERMS_AND_CONDITIONS = """
 These Terms & Conditions govern use of the OFA application. You retain ownership of content you create with local tools. Do not use OFA to violate applicable laws, platform policies, or third-party rights. Premium subscriptions are handled through the relevant billing provider.
 """.trimIndent()
 
-private const val EULA = """
+private val EULA = """
 This End User License Agreement grants you a limited, non-exclusive license to use OFA on devices you own or control. You may not reverse-engineer, modify, or redistribute the application except as permitted by law.
 """.trimIndent()
 
-private const val REFUND_INFO = """
+private val REFUND_INFO = """
 Refund handling follows the policies of the store or payment provider through which the purchase was made (e.g., Google Play). Contact the respective support channel for refund requests.
 """.trimIndent()
 
-private const val SUBSCRIPTION_TERMS = """
+private val SUBSCRIPTION_TERMS = """
 OFA offers optional Premium subscriptions. Pricing and billing are managed by the store/payment provider. Subscriptions auto-renew according to the provider's terms. You can cancel or manage subscriptions through the provider's account settings.
 """.trimIndent()
 
-private const val THIRD_PARTY_SERVICES = """
+private val THIRD_PARTY_SERVICES = """
 OFA integrates open-source and third-party libraries (e.g., PDFBox-Android, ZXing, Razorpay, AndroidX) under their respective licenses. Network features may use external providers selected by the user. OFA does not control those providers.
 """.trimIndent()
 
-private const val PROVIDER_DISCLOSURE = """
+private val PROVIDER_DISCLOSURE = """
 Network features require external providers. Before using temporary mail, temporary SMS, meetings, weather, AI, or social/public media tools, you choose or configure a provider. Data is sent directly to that provider under its terms. OFA infrastructure does not receive, store, or process that data.
 """.trimIndent()
 
-private const val OPEN_SOURCE_LICENSES = """
+private val OPEN_SOURCE_LICENSES = """
 OFA uses open-source components including but not limited to: Android Jetpack, Kotlin Coroutines, Compose, PDFBox-Android (Apache 2.0), ZXing (Apache 2.0), and Razorpay SDK. Their respective licenses and notices apply.
 """.trimIndent()
 
-private const val COPYRIGHT_NOTICE = """
+private val COPYRIGHT_NOTICE = """
 OFA and its original code are proprietary. Third-party marks and libraries belong to their respective owners. OFA is not affiliated with or endorsed by My Hero Academia, Shueisha, or any other rights holder.
 """.trimIndent()
 
-private const val DATA_DELETION = """
+private val DATA_DELETION = """
 You can delete all OFA data from Settings. This removes preferences, favorites, recent tools, notes, vault items, and locally cached files. Subscription records remain with the billing provider and must be managed there.
 """.trimIndent()
 
-private const val NETWORK_DISCLOSURE = """
+private val NETWORK_DISCLOSURE = """
 Local tools work offline. Network tools require an internet connection and an external provider. OFA shows which tools require a network connection. We do not mask network activity as offline processing.
 """.trimIndent()
 
-private const val AI_DISCLOSURE = """
+private val AI_DISCLOSURE = """
 AI features clearly distinguish deterministic, AI-generated, and uncertain results. Local AI runs on-device where feasible. External AI sends data to the configured provider only with explicit user action.
 """.trimIndent()
 
-private const val EMERGENCY DISCLAIMER = """
+private val EMERGENCY DISCLAIMER = """
 OFA's emergency/SOS tools are aids, not replacements for official emergency services. Call local emergency numbers directly when possible. SOS actions depend on device capabilities, permissions, and network availability. OFA cannot guarantee delivery of emergency messages.
 """.trimIndent()
