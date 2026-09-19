@@ -30,6 +30,7 @@ import org.phireox.ofa.feature.backup.BackupRestoreScreen
 import org.phireox.ofa.feature.weather.WeatherScreen
 import org.phireox.ofa.feature.messaging.MessagingScreen
 import org.phireox.ofa.feature.ai.AiAssistantScreen
+import org.phireox.ofa.feature.settings.ProvidersScreen
 
 @Composable
 fun OFANavHost(navController: NavHostController, modifier: Modifier = Modifier) {
@@ -88,7 +89,8 @@ fun OFANavHost(navController: NavHostController, modifier: Modifier = Modifier) 
                 onLegalClick = { navController.navigate(Destination.Legal.route) },
                 onDiagnosticsClick = { navController.navigate(Destination.Diagnostics.route) },
                 onVaultClick = { navController.navigate(Destination.Vault.route) },
-                onBackupRestoreClick = { navController.navigate(Destination.BackupRestore.route) }
+                onBackupRestoreClick = { navController.navigate(Destination.BackupRestore.route) },
+                onProvidersClick = { navController.navigate(Destination.Providers.route) }
             )
         }
         composable(Destination.Subscription.route) {
@@ -139,6 +141,9 @@ fun OFANavHost(navController: NavHostController, modifier: Modifier = Modifier) 
         }
         composable(Destination.AiAssistant.route) {
             AiAssistantScreen { navController.popBackStack() }
+        }
+        composable(Destination.Providers.route) {
+            ProvidersScreen { navController.popBackStack() }
         }
     }
 }

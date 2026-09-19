@@ -44,7 +44,8 @@ fun SettingsScreen(
     onLegalClick: () -> Unit = {},
     onDiagnosticsClick: () -> Unit = {},
     onVaultClick: () -> Unit = {},
-    onBackupRestoreClick: () -> Unit = {}
+    onBackupRestoreClick: () -> Unit = {},
+    onProvidersClick: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val prefs = remember { PrefsDataStore(context) }
@@ -88,6 +89,8 @@ fun SettingsScreen(
             TextButton(onClick = onVaultClick) { Text("Encrypted vault") }
             Text("Data", style = MaterialTheme.typography.titleMedium)
             TextButton(onClick = onBackupRestoreClick) { Text("Backup & Restore") }
+            Text("Providers", style = MaterialTheme.typography.titleMedium)
+            TextButton(onClick = onProvidersClick) { Text("Provider settings") }
             Text("About & Legal", style = MaterialTheme.typography.titleMedium)
             TextButton(onClick = onLegalClick) { Text("Legal & Privacy") }
             TextButton(onClick = onDiagnosticsClick) { Text("Diagnostics") }
