@@ -1,0 +1,60 @@
+image: openjdk:21-jdk-slim
+
+variables:
+  ANDROID_COMPILE_SDK: "34"
+  ANDROID_BUILD_TOOLS: "34.0.0"
+  GRADLE_VERSION: "8.7"
+  GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+
+before_script:
+  - apt-get update -qq
+  - apt-get install -y -qq wget unzip git > /dev/null
+  - mkdir -p /opt/android-sdk/cmdline-tools
+  - wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O /tmp/cmdline-tools.zip
+  - unzip -q /tmp/cmdline-tools.zip -d /opt/android-sdk/cmdline-tools
+  - mv /opt/android-sdk/cmdline-tools/cmdline-tools /opt/android-sdk/cmdline-tools/latest
+  - export ANDROID_HOME=/opt/android-sdk
+  - export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools
+  - yes | sdkmanager --licenses >/dev/null 2>&1 || true
+  - sdkmanager "platforms;android-${ANDROID_COMPILE_SDK}" "build-tools;${ANDROID_BUILD_TOOLS}" >/dev/null 2>&1
+  - wget -q https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip -O /tmp/gradle.zip
+  - unzip -q /tmp/gradle.zip -d /opt
+  - export PATH=/opt/gradle-${GRADLE_VERSION}/bin:$PATH
+
+stages:
+  - check
+  - build
+
+lint:
+  stage: check
+  script:
+    - gradle lintDebug --no-daemon
+  artifacts:
+    when: always
+    paths:
+      - app/build/reports/
+
+test:
+  stage: check
+  script:
+    - gradle testDebugUnitTest --no-daemon
+  artifacts:
+    when: always
+    paths:
+      - app/build/reports/tests/
+
+assemble_debug:
+  stage: build
+  script:
+    - gradle assembleDebug --no-daemon
+  artifacts:
+    paths:
+      - app/build/outputs/apk/debug/
+
+assemble_release:
+  stage: build
+  script:
+    - gradle assembleRelease --no-daemon
+  artifacts:
+    paths:
+      - app/build/outputs/apk/release/
