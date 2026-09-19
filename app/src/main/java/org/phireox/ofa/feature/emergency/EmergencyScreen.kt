@@ -99,7 +99,7 @@ fun EmergencyScreen(onBack: () -> Unit) {
                                     countdown--
                                 }
                                 triggerSos(context, sosMessage)
-                                vibrator?.vibrate(VibrationEffect.createOneShot(500, VibrationEffect.DEFAULT_AMPLITUDE))
+                                vibrateCompat(vibrator, 500)
                             }
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
@@ -186,6 +186,17 @@ private fun getVibrator(context: Context): Vibrator? {
     } else {
         @Suppress("DEPRECATION")
         context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
+    }
+}
+
+private fun vibrateCompat(vibrator: Vibrator?, durationMs: Long) {
+    vibrator?.let { v ->
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            v.vibrate(VibrationEffect.createOneShot(durationMs, VibrationEffect.DEFAULT_AMPLITUDE))
+        } else {
+            @Suppress("DEPRECATION")
+            v.vibrate(durationMs)
+        }
     }
 }
 
