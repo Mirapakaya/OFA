@@ -71,13 +71,16 @@ object AiChatClient {
 
     private fun post(request: Request): String {
         val url = URL(request.url)
-        return (url.openConnection() as HttpURLConnection).use { conn ->
+        val conn = url.openConnection() as HttpURLConnection
+        try {
             conn.requestMethod = "POST"
             conn.setRequestProperty("Content-Type", "application/json")
             request.headers.forEach { (k, v) -> conn.setRequestProperty(k, v) }
             conn.doOutput = true
             conn.outputStream.use { it.write(request.body.toByteArray()) }
-            conn.inputStream.bufferedReader().use { it.readText() }
+            return conn.inputStream.bufferedReader().use { it.readText() }
+        } finally {
+            conn.disconnect()
         }
     }
 

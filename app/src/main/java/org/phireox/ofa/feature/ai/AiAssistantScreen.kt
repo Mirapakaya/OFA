@@ -15,6 +15,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenu
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
@@ -77,7 +78,7 @@ fun AiAssistantScreen(onBack: () -> Unit) {
                             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                             modifier = Modifier.fillMaxWidth().menuAnchor()
                         )
-                        ExposedDropdownMenuBox(expanded = expanded, onDismissRequest = { expanded = false }) {
+                        ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
                             listOf("openai", "gemini", "anthropic", "custom").forEach { p ->
                                 DropdownMenuItem(text = { Text(p.replaceFirstChar { it.uppercase() }) }, onClick = { provider = p; expanded = false })
                             }

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920">
+  <rect width="1080" height="1920" fill="#f8fafc"/>
+  <rect x="0" y="0" width="1080" height="80" fill="#0f172a"/>
+  <text x="540" y="50" text-anchor="middle" font-size="32" fill="#ffffff" font-family="sans-serif">Categories</text>
+  <text x="540" y="300" text-anchor="middle" font-size="40" fill="#0f172a" font-family="sans-serif">PDF, Images, Developer, Data...</text>
+</svg>

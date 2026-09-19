@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920">
+  <rect width="1080" height="1920" fill="#f8fafc"/>
+  <rect x="0" y="0" width="1080" height="80" fill="#0f172a"/>
+  <text x="540" y="50" text-anchor="middle" font-size="32" fill="#ffffff" font-family="sans-serif">OFA</text>
+  <text x="540" y="200" text-anchor="middle" font-size="56" fill="#0f172a" font-family="sans-serif">One For All</text>
+  <rect x="80" y="280" width="920" height="120" rx="16" fill="#e2e8f0"/>
+  <text x="120" y="350" font-size="28" fill="#0f172a" font-family="sans-serif">Notes — Local notes &amp; checklists</text>
+  <rect x="80" y="420" width="920" height="120" rx="16" fill="#e2e8f0"/>
+  <text x="120" y="490" font-size="28" fill="#0f172a" font-family="sans-serif">Emergency — SOS, flashlight &amp; siren</text>
+  <rect x="80" y="560" width="920" height="120" rx="16" fill="#e2e8f0"/>
+  <text x="120" y="630" font-size="28" fill="#0f172a" font-family="sans-serif">Compass — Heading &amp; direction</text>
+  <rect x="80" y="700" width="920" height="120" rx="16" fill="#e2e8f0"/>
+  <text x="120" y="770" font-size="28" fill="#0f172a" font-family="sans-serif">Offline Maps — Saved maps &amp; coverage</text>
+</svg>
