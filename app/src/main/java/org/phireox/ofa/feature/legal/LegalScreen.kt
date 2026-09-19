@@ -40,7 +40,7 @@ fun LegalScreen(onBack: () -> Unit) {
         "Data Deletion" to DATA_DELETION,
         "Network Feature Disclosure" to NETWORK_DISCLOSURE,
         "AI Disclosure" to AI_DISCLOSURE,
-        "Emergency Disclaimer" to EMERGENCY DISCLAIMER
+        "Emergency Disclaimer" to EMERGENCY_DISCLAIMER
     )
 
     Scaffold(
@@ -125,6 +125,6 @@ private val AI_DISCLOSURE = """
 AI features clearly distinguish deterministic, AI-generated, and uncertain results. Local AI runs on-device where feasible. External AI sends data to the configured provider only with explicit user action.
 """.trimIndent()
 
-private val EMERGENCY DISCLAIMER = """
+private val EMERGENCY_DISCLAIMER = """
 OFA's emergency/SOS tools are aids, not replacements for official emergency services. Call local emergency numbers directly when possible. SOS actions depend on device capabilities, permissions, and network availability. OFA cannot guarantee delivery of emergency messages.
 """.trimIndent()

@@ -642,7 +642,9 @@ object ToolProcessor {
         if (rows.isEmpty()) return input
         val map = mapping.split(",").mapNotNull { part ->
             val p = part.split(":")
-            if (p.size == 2) p[0].trim().toIntOrNull() to p[1].trim() else null
+            if (p.size == 2) {
+                p[0].trim().toIntOrNull()?.let { it to p[1].trim() }
+            } else null
         }.toMap()
         return rows.map { row ->
             map.entries.map { (from, to) ->
