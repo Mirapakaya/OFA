@@ -10,6 +10,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -29,7 +30,7 @@ fun PrivacyDashboardScreen(onBack: () -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Privacy Dashboard") },
+                title = { Text(stringResource(R.string.privacy_dashboard)) },
                 navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") } }
             )
         }
@@ -38,20 +39,48 @@ fun PrivacyDashboardScreen(onBack: () -> Unit) {
             modifier = Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()).padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Card(modifier = Modifier.fillMaxWidth()) {
+            Card(modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
                 Column(Modifier.padding(16.dp)) {
-                    Text("Local processing", style = MaterialTheme.typography.titleMedium)
+                    Text("Local-first by design", style = MaterialTheme.typography.titleMedium)
                     Text(stringResource(R.string.local_processing_explanation))
                 }
             }
+
             Card(modifier = Modifier.fillMaxWidth()) {
                 Column(Modifier.padding(16.dp)) {
-                    Text("External network", style = MaterialTheme.typography.titleMedium)
-                    Text(stringResource(R.string.network_feature_explanation))
+                    Text("Processed on this device", style = MaterialTheme.typography.titleMedium)
+                    Text("• PDF processing, image processing, SVG tools\n" +
+                        "• Text, document and code utilities\n" +
+                        "• CSV/data tools, calculators, QR/barcode generation\n" +
+                        "• Local notes, business documents, engineering calculators\n" +
+                        "• Privacy scanners, file operations, metadata tools")
                 }
             }
-            Text("What leaves this device", style = MaterialTheme.typography.titleMedium)
-            Text("• Local tools: nothing leaves your device.\n• Provider features: only what you explicitly send to the configured third-party provider.\n• Billing: handled by Google Play.")
+
+            Card(modifier = Modifier.fillMaxWidth()) {
+                Column(Modifier.padding(16.dp)) {
+                    Text("Uses external network services", style = MaterialTheme.typography.titleMedium)
+                    Text("• Temporary mail, temporary phone/SMS\n" +
+                        "• Online meeting rooms, internet file sharing\n" +
+                        "• Live weather, external AI, social/public-media retrieval\n" +
+                        "• Payment verification and subscription status checks")
+                }
+            }
+
+            Card(modifier = Modifier.fillMaxWidth()) {
+                Column(Modifier.padding(16.dp)) {
+                    Text("What can leave the device", style = MaterialTheme.typography.titleMedium)
+                    Text(stringResource(R.string.network_feature_explanation) +
+                        " Data sent to a provider is governed by that provider's privacy policy.")
+                }
+            }
+
+            Card(modifier = Modifier.fillMaxWidth()) {
+                Column(Modifier.padding(16.dp)) {
+                    Text("Your controls", style = MaterialTheme.typography.titleMedium)
+                    Text("You can delete all OFA data, including preferences, favorites, recent tools, notes, vault items and cached files, from Settings → Delete all OFA data.")
+                }
+            }
         }
     }
 }

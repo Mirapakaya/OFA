@@ -38,7 +38,14 @@ import org.phireox.ofa.data.local.ThemeMode
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(onBack: () -> Unit, onSubscriptionClick: () -> Unit) {
+fun SettingsScreen(
+    onBack: () -> Unit,
+    onSubscriptionClick: () -> Unit,
+    onLegalClick: () -> Unit = {},
+    onDiagnosticsClick: () -> Unit = {},
+    onVaultClick: () -> Unit = {},
+    onBackupRestoreClick: () -> Unit = {}
+) {
     val context = LocalContext.current
     val prefs = remember { PrefsDataStore(context) }
     val scope = rememberCoroutineScope()
@@ -77,6 +84,13 @@ fun SettingsScreen(onBack: () -> Unit, onSubscriptionClick: () -> Unit) {
             TextButton(onClick = onSubscriptionClick) { Text("Manage subscription") }
             Text("Privacy", style = MaterialTheme.typography.titleMedium)
             TextButton(onClick = { scope.launch { prefs.clearAll() } }) { Text("Delete all OFA data") }
+            Text("Security", style = MaterialTheme.typography.titleMedium)
+            TextButton(onClick = onVaultClick) { Text("Encrypted vault") }
+            Text("Data", style = MaterialTheme.typography.titleMedium)
+            TextButton(onClick = onBackupRestoreClick) { Text("Backup & Restore") }
+            Text("About & Legal", style = MaterialTheme.typography.titleMedium)
+            TextButton(onClick = onLegalClick) { Text("Legal & Privacy") }
+            TextButton(onClick = onDiagnosticsClick) { Text("Diagnostics") }
         }
     }
 }

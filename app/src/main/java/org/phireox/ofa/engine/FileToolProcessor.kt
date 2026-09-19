@@ -24,22 +24,41 @@ object FileToolProcessor {
             when (tool.id) {
                 "pdf_metadata" -> pdfMetadata(context, uri)
                 "pdf_to_images" -> pdfToImages(context, uri)
-                "pdf_merge" -> pdfMerge(context, uri)
+                "pdf_merge" -> pdfMerge(context, listOf(uri))
                 "pdf_split" -> pdfSplit(context, uri)
                 "pdf_compress" -> pdfCompress(context, uri)
+                "pdf_rotate" -> pdfRotate(context, uri, params)
+                "pdf_delete_pages" -> pdfDeletePages(context, uri, params)
+                "pdf_extract_text" -> pdfExtractText(context, uri)
+                "pdf_protect" -> pdfProtect(context, uri, params)
+                "pdf_reorder" -> pdfReorder(context, uri, params)
                 "images_to_pdf" -> imageToPdf(context, uri)
                 "image_compress" -> imageCompress(context, uri, params)
                 "image_resize" -> imageResize(context, uri, params)
                 "image_rotate" -> imageRotate(context, uri, params)
                 "image_flip" -> imageFlip(context, uri, params)
                 "image_crop" -> imageCrop(context, uri, params)
+                "image_convert" -> imageConvert(context, uri, params)
                 "image_to_pdf" -> imageToPdf(context, uri)
                 "exif_viewer" -> exifViewer(context, uri)
+                "exif_cleaner" -> exifCleaner(context, uri)
                 "file_hash" -> fileHash(context, uri, params["algo"] ?: "SHA-256")
                 "mime_detector" -> ToolResult.Text(context.contentResolver.getType(uri) ?: "unknown/unknown")
                 "zip_creator" -> zipFiles(context, listOf(uri))
                 "zip_extractor" -> extractZip(context, uri)
                 else -> ToolResult.Text("File processing not yet implemented for ${tool.title}")
+            }
+        } catch (e: Exception) {
+            ToolResult.Error(e.localizedMessage ?: "File processing error")
+        }
+    }
+
+    fun processMultiple(context: Context, tool: Tool, uris: List<Uri>, params: Map<String, String> = emptyMap()): ToolResult {
+        return try {
+            when (tool.id) {
+                "pdf_merge" -> pdfMerge(context, uris)
+                "zip_creator" -> zipFiles(context, uris)
+                else -> ToolResult.Error("Multi-file processing not supported for ${tool.title}")
             }
         } catch (e: Exception) {
             ToolResult.Error(e.localizedMessage ?: "File processing error")
@@ -111,23 +130,109 @@ object FileToolProcessor {
     private fun pdfCompress(context: Context, uri: Uri): ToolResult {
         context.contentResolver.openInputStream(uri)?.use { stream ->
             PDDocument.load(stream).use { doc ->
-                val outFile = File(context.cacheDir, "compressed.pdf")
+                val outFile = File(context.cacheDir, "compressed_${System.currentTimeMillis()}.pdf")
                 FileOutputStream(outFile).use { doc.save(it) }
-                return ToolResult.Text("Saved compressed PDF to ${outFile.absolutePath}")
+                return ToolResult.File(outFile.absolutePath, "application/pdf")
             }
         }
         return ToolResult.Error("Cannot open PDF")
     }
 
-    private fun pdfMerge(context: Context, uri: Uri): ToolResult {
+    private fun pdfRotate(context: Context, uri: Uri, params: Map<String, String>): ToolResult {
+        val angle = params["angle"]?.toFloatOrNull() ?: 90f
         context.contentResolver.openInputStream(uri)?.use { stream ->
             PDDocument.load(stream).use { doc ->
-                val outFile = File(context.cacheDir, "merged.pdf")
+                for (i in 0 until doc.numberOfPages) {
+                    val page = doc.getPage(i)
+                    val rotation = page.rotation
+                    page.rotation = (rotation + angle.toInt()) % 360
+                }
+                val outFile = File(context.cacheDir, "rotated_${System.currentTimeMillis()}.pdf")
                 FileOutputStream(outFile).use { doc.save(it) }
-                return ToolResult.Text("Saved merged PDF to ${outFile.absolutePath}\n(Multi-file merge requires selecting multiple files.)")
+                return ToolResult.File(outFile.absolutePath, "application/pdf")
             }
         }
         return ToolResult.Error("Cannot open PDF")
+    }
+
+    private fun pdfDeletePages(context: Context, uri: Uri, params: Map<String, String>): ToolResult {
+        val pagesToDelete = params["pages"]?.split(",")?.mapNotNull { it.trim().toIntOrNull() } ?: emptyList()
+        context.contentResolver.openInputStream(uri)?.use { stream ->
+            PDDocument.load(stream).use { doc ->
+                val total = doc.numberOfPages
+                val indices = pagesToDelete.map { it - 1 }.filter { it in 0 until total }.sortedDescending()
+                indices.forEach { doc.removePage(it) }
+                val outFile = File(context.cacheDir, "deleted_${System.currentTimeMillis()}.pdf")
+                FileOutputStream(outFile).use { doc.save(it) }
+                return ToolResult.File(outFile.absolutePath, "application/pdf")
+            }
+        }
+        return ToolResult.Error("Cannot open PDF")
+    }
+
+    private fun pdfExtractText(context: Context, uri: Uri): ToolResult {
+        context.contentResolver.openInputStream(uri)?.use { stream ->
+            PDDocument.load(stream).use { doc ->
+                val text = com.tom_roush.pdfbox.text.PDFTextStripper().getText(doc)
+                return ToolResult.Text(text.take(5000))
+            }
+        }
+        return ToolResult.Error("Cannot open PDF")
+    }
+
+    private fun pdfMerge(context: Context, uris: List<Uri>): ToolResult {
+        if (uris.isEmpty()) return ToolResult.Error("No PDFs selected")
+        val merged = PDDocument()
+        uris.forEach { uri ->
+            context.contentResolver.openInputStream(uri)?.use { stream ->
+                PDDocument.load(stream).use { doc ->
+                    for (i in 0 until doc.numberOfPages) {
+                        merged.addPage(doc.getPage(i))
+                    }
+                }
+            }
+        }
+        if (merged.numberOfPages == 0) {
+            merged.close()
+            return ToolResult.Error("Could not merge any pages")
+        }
+        val outFile = File(context.cacheDir, "merged_${System.currentTimeMillis()}.pdf")
+        FileOutputStream(outFile).use { merged.save(it) }
+        merged.close()
+        return ToolResult.File(outFile.absolutePath, "application/pdf")
+    }
+
+    private fun imageConvert(context: Context, uri: Uri, params: Map<String, String>): ToolResult {
+        val bitmap = decodeBitmap(context, uri) ?: return ToolResult.Error("Cannot decode image")
+        val format = params["format"]?.lowercase() ?: "png"
+        val outFile = File(context.cacheDir, "converted_${System.currentTimeMillis()}.$format")
+        when (format) {
+            "jpg", "jpeg" -> FileOutputStream(outFile).use { bitmap.compress(Bitmap.CompressFormat.JPEG, 95, it) }
+            "webp" -> FileOutputStream(outFile).use { bitmap.compress(Bitmap.CompressFormat.WEBP, 95, it) }
+            else -> FileOutputStream(outFile).use { bitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }
+        }
+        return ToolResult.File(outFile.absolutePath, "image/$format")
+    }
+
+    private fun exifCleaner(context: Context, uri: Uri): ToolResult {
+        return try {
+            context.contentResolver.openInputStream(uri)?.use { stream ->
+                val exif = ExifInterface(stream)
+                val attributes = listOf(
+                    ExifInterface.TAG_MAKE, ExifInterface.TAG_MODEL, ExifInterface.TAG_DATETIME,
+                    ExifInterface.TAG_GPS_LATITUDE, ExifInterface.TAG_GPS_LONGITUDE,
+                    ExifInterface.TAG_F_NUMBER, ExifInterface.TAG_EXPOSURE_TIME, ExifInterface.TAG_ISO_SPEED
+                )
+                attributes.forEach { exif.setAttribute(it, null) }
+                val outFile = File(context.cacheDir, "cleaned_${System.currentTimeMillis()}.jpg")
+                decodeBitmap(context, uri)?.let { bitmap ->
+                    FileOutputStream(outFile).use { bitmap.compress(Bitmap.CompressFormat.JPEG, 95, it) }
+                }
+                return ToolResult.File(outFile.absolutePath, "image/jpeg")
+            } ?: return ToolResult.Error("Cannot open image")
+        } catch (e: Exception) {
+            return ToolResult.Error("EXIF clean failed: ${e.localizedMessage}")
+        }
     }
 
     private fun exifViewer(context: Context, uri: Uri): ToolResult {
@@ -265,6 +370,40 @@ object FileToolProcessor {
             }
         } ?: return ToolResult.Error("Cannot open ZIP")
         return ToolResult.Text("Extracted to ${outDir.absolutePath}")
+    }
+
+    private fun pdfProtect(context: Context, uri: Uri, params: Map<String, String>): ToolResult {
+        val password = params["password"] ?: return ToolResult.Error("Password required")
+        context.contentResolver.openInputStream(uri)?.use { stream ->
+            PDDocument.load(stream).use { doc ->
+                val accessPermission = com.tom_roush.pdfbox.pdmodel.encryption.AccessPermission()
+                val protection = com.tom_roush.pdfbox.pdmodel.encryption.StandardProtectionPolicy(password, password, accessPermission)
+                protection.setEncryptionKeyLength(128)
+                doc.protect(protection)
+                val outFile = File(context.cacheDir, "protected_${System.currentTimeMillis()}.pdf")
+                FileOutputStream(outFile).use { doc.save(it) }
+                return ToolResult.File(outFile.absolutePath, "application/pdf")
+            }
+        }
+        return ToolResult.Error("Cannot open PDF")
+    }
+
+    private fun pdfReorder(context: Context, uri: Uri, params: Map<String, String>): ToolResult {
+        val order = params["order"]?.split(",")?.mapNotNull { it.trim().toIntOrNull() } ?: return ToolResult.Error("Page order required, e.g. 2,1,3")
+        context.contentResolver.openInputStream(uri)?.use { stream ->
+            PDDocument.load(stream).use { doc ->
+                val total = doc.numberOfPages
+                val indices = order.map { it - 1 }.filter { it in 0 until total }
+                if (indices.isEmpty()) return ToolResult.Error("No valid page order provided")
+                val newDoc = PDDocument()
+                indices.forEach { newDoc.addPage(doc.getPage(it)) }
+                val outFile = File(context.cacheDir, "reordered_${System.currentTimeMillis()}.pdf")
+                FileOutputStream(outFile).use { newDoc.save(it) }
+                newDoc.close()
+                return ToolResult.File(outFile.absolutePath, "application/pdf")
+            }
+        }
+        return ToolResult.Error("Cannot open PDF")
     }
 
     private fun decodeBitmap(context: Context, uri: Uri): Bitmap? {

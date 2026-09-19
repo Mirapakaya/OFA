@@ -15,7 +15,8 @@ private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(na
 
 class PrefsDataStore(context: Context) {
 
-    private val dataStore = context.dataStore
+    private val appContext = context.applicationContext
+    private val dataStore = appContext.dataStore
 
     val themeMode: Flow<ThemeMode> = dataStore.data.map { prefs ->
         ThemeMode.valueOf(prefs[Keys.THEME_MODE] ?: ThemeMode.SYSTEM.name)
@@ -76,6 +77,35 @@ class PrefsDataStore(context: Context) {
 
     suspend fun clearAll() {
         dataStore.edit { it.clear() }
+        appContext.cacheDir?.deleteRecursivelyOrIgnore()
+        appContext.filesDir?.deleteRecursivelyOrIgnore()
+    }
+
+    suspend fun export(): Map<String, Any> = dataStore.data.first().let { prefs ->
+        mapOf(
+            Keys.THEME_MODE.name to (prefs[Keys.THEME_MODE] ?: ThemeMode.SYSTEM.name),
+            Keys.DYNAMIC_COLOR.name to (prefs[Keys.DYNAMIC_COLOR] == true),
+            Keys.FAVORITES.name to (prefs[Keys.FAVORITES] ?: emptySet<String>()),
+            Keys.RECENT_TOOLS.name to (prefs[Keys.RECENT_TOOLS] ?: ""),
+            Keys.IS_PREMIUM.name to (prefs[Keys.IS_PREMIUM] == true),
+            Keys.ONBOARDING_COMPLETE.name to (prefs[Keys.ONBOARDING_COMPLETE] == true)
+        )
+    }
+
+    suspend fun import(map: Map<String, Any>) {
+        dataStore.edit { prefs ->
+            (map[Keys.THEME_MODE.name] as? String)?.let { prefs[Keys.THEME_MODE] = it }
+            (map[Keys.DYNAMIC_COLOR.name] as? Boolean)?.let { prefs[Keys.DYNAMIC_COLOR] = it }
+            (map[Keys.FAVORITES.name] as? Set<*>)?.filterIsInstance<String>()?.toSet()?.let { prefs[Keys.FAVORITES] = it }
+            (map[Keys.RECENT_TOOLS.name] as? String)?.let { prefs[Keys.RECENT_TOOLS] = it }
+            (map[Keys.IS_PREMIUM.name] as? Boolean)?.let { prefs[Keys.IS_PREMIUM] = it }
+            (map[Keys.ONBOARDING_COMPLETE.name] as? Boolean)?.let { prefs[Keys.ONBOARDING_COMPLETE] = it }
+        }
+    }
+
+    private fun java.io.File.deleteRecursivelyOrIgnore() {
+        runCatching { listFiles()?.forEach { it.deleteRecursivelyOrIgnore() } }
+        runCatching { delete() }
     }
 
     private object Keys {

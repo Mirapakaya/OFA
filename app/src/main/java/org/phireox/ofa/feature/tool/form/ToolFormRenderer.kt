@@ -51,9 +51,10 @@ fun ToolFormRenderer(tool: Tool, viewModel: ToolViewModel) {
     val specs = remember(tool.id) { ToolFormRegistry.forTool(tool.id) }
     val values = remember { mutableStateMapOf<String, String>() }
 
-    val fileFields = specs.filter { it.type == FieldType.FILE }
+    val fileFields = specs.filter { it.type == FieldType.FILE || it.type == FieldType.FILES }
     val hasFileField = fileFields.isNotEmpty()
     var selectedUri by remember { mutableStateOf<Uri?>(null) }
+    var selectedUris by remember { mutableStateOf<List<Uri>>(emptyList()) }
 
     val mimeType = remember(tool.toolType) {
         when (tool.toolType) {
@@ -65,6 +66,9 @@ fun ToolFormRenderer(tool: Tool, viewModel: ToolViewModel) {
     val fileLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         uri?.let { selectedUri = it }
     }
+    val filesLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { uris ->
+        uris?.let { selectedUris = it }
+    }
 
     // Initialise defaults once
     remember(tool.id) {
@@ -74,8 +78,12 @@ fun ToolFormRenderer(tool: Tool, viewModel: ToolViewModel) {
 
     val onSubmit: () -> Unit = {
         val params = specs.associate { it.key to (values[it.key] ?: it.defaultValue) }
-        if (hasFileField && selectedUri != null) {
-            viewModel.processFile(selectedUri!!, params)
+        if (hasFileField) {
+            if (selectedUris.isNotEmpty()) {
+                viewModel.processFiles(selectedUris, params)
+            } else if (selectedUri != null) {
+                viewModel.processFile(selectedUri!!, params)
+            }
         } else {
             viewModel.process(params)
         }
@@ -106,6 +114,25 @@ fun ToolFormRenderer(tool: Tool, viewModel: ToolViewModel) {
                                 selectedUri?.let {
                                     Spacer(Modifier.height(4.dp))
                                     Text(it.toString(), style = MaterialTheme.typography.bodySmall)
+                                }
+                            }
+                        }
+                    }
+                    FieldType.FILES -> {
+                        Surface(
+                            tonalElevation = 2.dp,
+                            shape = MaterialTheme.shapes.medium,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Column(modifier = Modifier.padding(16.dp)) {
+                                Text(field.label, style = MaterialTheme.typography.titleSmall)
+                                Spacer(Modifier.height(8.dp))
+                                Button(onClick = { filesLauncher.launch(mimeType) }, modifier = Modifier.fillMaxWidth()) {
+                                    Text(if (selectedUris.isEmpty()) "Select files" else "${selectedUris.size} selected")
+                                }
+                                if (selectedUris.isNotEmpty()) {
+                                    Spacer(Modifier.height(4.dp))
+                                    Text(selectedUris.joinToString { it.lastPathSegment ?: "" }, style = MaterialTheme.typography.bodySmall)
                                 }
                             }
                         }

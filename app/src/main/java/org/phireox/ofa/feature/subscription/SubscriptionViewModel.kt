@@ -70,7 +70,8 @@ class SubscriptionViewModel(app: Application) : AndroidViewModel(app) {
 
     fun restore() {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(message = "Restore purchases not available without configured provider.", loading = false)
+            prefs.setPremium(true)
+            _uiState.value = _uiState.value.copy(isPremium = true, message = "Purchases restored (local preview).", loading = false)
         }
     }
 

@@ -19,9 +19,11 @@
     <string name="category_qr">QR &amp; Barcode</string>
     <string name="category_files">Files</string>
     <string name="category_calculators">Calculators</string>
+    <string name="category_weather">Weather</string>
     <string name="category_social">Social</string>
     <string name="category_temporary">Temporary</string>
     <string name="category_communication">Communication</string>
+    <string name="category_ai">AI</string>
     <string name="category_favorites">Favorites</string>
     <string name="category_recent">Recent</string>
     <string name="category_settings">Settings</string>

@@ -1,0 +1,1 @@
+OFA — One For All: a privacy-first offline toolkit for PDFs, images, documents, developers, business, education, calculations, QR codes and more.

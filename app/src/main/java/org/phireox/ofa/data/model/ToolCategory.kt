@@ -28,9 +28,11 @@ enum class ToolCategory(
     QR("qr", R.string.category_qr, Icons.Default.QrCode),
     FILES("files", R.string.category_files, Icons.Default.Folder),
     CALCULATORS("calculators", R.string.category_calculators, Icons.Default.Calculate),
+    WEATHER("weather", R.string.category_weather, Icons.Default.WbSunny),
     SOCIAL("social", R.string.category_social, Icons.Default.Share),
     TEMPORARY("temporary", R.string.category_temporary, Icons.Default.HourglassEmpty),
     COMMUNICATION("communication", R.string.category_communication, Icons.Default.Chat),
+    AI("ai", R.string.category_ai, Icons.Default.Psychology),
     FAVORITES("favorites", R.string.category_favorites, Icons.Default.Star),
     RECENT("recent", R.string.category_recent, Icons.Default.History),
     SETTINGS("settings", R.string.category_settings, Icons.Default.Settings)

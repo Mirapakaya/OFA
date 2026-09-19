@@ -21,6 +21,7 @@ data class ToolUiState(
     val tool: Tool? = null,
     val input: String = "",
     val output: String = "",
+    val fileResult: ToolResult.File? = null,
     val qrBitmap: Bitmap? = null,
     val loading: Boolean = false,
     val error: String? = null
@@ -56,11 +57,12 @@ class ToolViewModel(toolId: String, app: Application) : AndroidViewModel(app) {
                         }
                     }
                     else -> {
-                        val result = ToolProcessor.process(tool, input, params)
+                        val result = ToolProcessor.process(getApplication(), tool, input, params)
                         withContext(Dispatchers.Main) {
                             when (result) {
-                                is ToolResult.Text -> state.value = state.value.copy(output = result.value, loading = false)
-                                is ToolResult.Error -> state.value = state.value.copy(error = result.message, loading = false)
+                                is ToolResult.Text -> state.value = state.value.copy(output = result.value, fileResult = null, loading = false)
+                                is ToolResult.File -> state.value = state.value.copy(output = result.path, fileResult = result, loading = false)
+                                is ToolResult.Error -> state.value = state.value.copy(error = result.message, fileResult = null, loading = false)
                             }
                         }
                     }
@@ -73,15 +75,37 @@ class ToolViewModel(toolId: String, app: Application) : AndroidViewModel(app) {
         }
     }
 
+    fun processFiles(uris: List<Uri>, params: Map<String, String> = emptyMap()) {
+        val tool = state.value.tool ?: return
+        state.value = state.value.copy(loading = true, error = null, output = "", fileResult = null, qrBitmap = null)
+        viewModelScope.launch(Dispatchers.Default) {
+            try {
+                val result = FileToolProcessor.processMultiple(getApplication(), tool, uris, params)
+                withContext(Dispatchers.Main) {
+                    when (result) {
+                        is ToolResult.Text -> state.value = state.value.copy(output = result.value, loading = false)
+                        is ToolResult.File -> state.value = state.value.copy(output = result.path, fileResult = result, loading = false)
+                        is ToolResult.Error -> state.value = state.value.copy(error = result.message, loading = false)
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    state.value = state.value.copy(error = e.localizedMessage, loading = false)
+                }
+            }
+        }
+    }
+
     fun processFile(uri: Uri, params: Map<String, String> = emptyMap()) {
         val tool = state.value.tool ?: return
-        state.value = state.value.copy(loading = true, error = null, output = "", qrBitmap = null)
+        state.value = state.value.copy(loading = true, error = null, output = "", fileResult = null, qrBitmap = null)
         viewModelScope.launch(Dispatchers.Default) {
             try {
                 val result = FileToolProcessor.process(getApplication(), tool, uri, params)
                 withContext(Dispatchers.Main) {
                     when (result) {
                         is ToolResult.Text -> state.value = state.value.copy(output = result.value, loading = false)
+                        is ToolResult.File -> state.value = state.value.copy(output = result.path, fileResult = result, loading = false)
                         is ToolResult.Error -> state.value = state.value.copy(error = result.message, loading = false)
                     }
                 }

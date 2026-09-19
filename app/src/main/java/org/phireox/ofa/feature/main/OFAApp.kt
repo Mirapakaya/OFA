@@ -8,7 +8,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
@@ -35,7 +35,7 @@ fun OFAApp() {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
-    val bottomRoutes = setOf(Destination.Home.route, Destination.Search.route, Destination.Categories.route, Destination.Vault.route, Destination.Settings.route)
+    val bottomRoutes = setOf(Destination.Home.route, Destination.Search.route, Destination.Categories.route, Destination.Notes.route, Destination.Settings.route)
     val showBottomBar = currentDestination?.route in bottomRoutes
 
     Scaffold(
@@ -46,7 +46,7 @@ fun OFAApp() {
                         BarItem("Home", Icons.Default.Home, Destination.Home.route),
                         BarItem("Search", Icons.Default.Search, Destination.Search.route),
                         BarItem("Categories", Icons.Default.Category, Destination.Categories.route),
-                        BarItem("Vault", Icons.Default.Lock, Destination.Vault.route),
+                        BarItem("Notes", Icons.Default.Description, Destination.Notes.route),
                         BarItem("Settings", Icons.Default.Settings, Destination.Settings.route)
                     ),
                     currentRoute = currentDestination?.route,

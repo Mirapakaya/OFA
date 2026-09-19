@@ -1,0 +1,16 @@
+OFA — One For All is a powerful, local-first Android toolkit that keeps your files and data on your device.
+
+Key features
+- PDF: merge, split, rotate, delete pages, extract text, protect with password, reorder pages, compress, convert to images.
+- Images: compress, resize, crop, rotate, flip, convert, remove EXIF, view EXIF.
+- Documents & text: case converter, word counter, diff, sort, deduplicate, markdown/HTML, JSON/YAML/XML tools, regex tester, and more.
+- Developer: base64, url/html encoding, hash, UUID, JWT decode, cron tools, timestamp, DNS, subnet/CIDR, secret scanners.
+- Data & CSV: CSV to JSON/SQL, cleaner, sorter, filter, merge, split, deduplicate.
+- Business & education: invoices, quotations, purchase orders, certificates, ID cards, mark sheets, timetables, worksheets.
+- Calculators: EMI, GST, interest, loan, BMI, unit converter, engineering calculators, age, date, percentage, tip.
+- QR & barcode generation.
+- Privacy: password generator, password strength auditor, PII detector.
+- Local notes, emergency SOS, compass, weather, offline maps framework, and local E2EE messaging.
+- Local backup & restore to keep your data portable.
+
+OFA processes data locally whenever possible. Network-dependent features are clearly marked and only send data to the external provider you choose, never to OFA servers.

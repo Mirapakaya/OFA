@@ -13,6 +13,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -22,10 +23,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 import org.phireox.ofa.core.ui.components.ToolCard
 import org.phireox.ofa.data.local.PrefsDataStore
 import org.phireox.ofa.data.model.ToolRegistry
@@ -38,6 +41,7 @@ fun SearchScreen(onBack: () -> Unit, onToolClick: (String) -> Unit) {
     val prefs = remember { PrefsDataStore(context) }
     val favorites by prefs.favorites.collectAsState(initial = emptySet())
     val results = remember(query) { ToolRegistry.search(query) }
+    val scope = rememberCoroutineScope()
 
     Scaffold(
         topBar = {
@@ -56,14 +60,24 @@ fun SearchScreen(onBack: () -> Unit, onToolClick: (String) -> Unit) {
                     label = { Text("Search tools") }
                 )
             }
+            if (results.isNotEmpty()) {
+                item {
+                    Text("${results.size} result${if (results.size == 1) "" else "s"}", style = MaterialTheme.typography.labelMedium, modifier = Modifier.padding(vertical = 4.dp))
+                }
+            }
             items(results, key = { it.id }) { tool ->
                 ToolCard(
                     tool = tool,
                     isFavorite = favorites.contains(tool.id),
                     onClick = { onToolClick(tool.id) },
-                    onToggleFavorite = { },
+                    onToggleFavorite = { scope.launch { prefs.toggleFavorite(tool.id) } },
                     modifier = Modifier.animateItemPlacement()
                 )
+            }
+            if (query.isNotBlank() && results.isEmpty()) {
+                item {
+                    Text("No tools match \"$query\"", style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(top = 16.dp))
+                }
             }
         }
     }

@@ -18,9 +18,14 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.OpenInNew
+import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.StarBorder
+import androidx.core.content.FileProvider
+import java.io.File
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -169,15 +174,53 @@ fun ToolDetailScreen(
                                         Icon(Icons.Default.ContentCopy, contentDescription = null)
                                         Text("Copy")
                                     }
-                                    FilledTonalButton(onClick = {
-                                        val send = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
-                                            type = "text/plain"
-                                            putExtra(android.content.Intent.EXTRA_TEXT, state.output)
+                                    if (state.fileResult == null) {
+                                        FilledTonalButton(onClick = {
+                                            val send = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
+                                                type = "text/plain"
+                                                putExtra(android.content.Intent.EXTRA_TEXT, state.output)
+                                            }
+                                            context.startActivity(android.content.Intent.createChooser(send, "Share"))
+                                        }) {
+                                            Icon(Icons.Default.Share, contentDescription = null)
+                                            Text("Share")
                                         }
-                                        context.startActivity(android.content.Intent.createChooser(send, "Share"))
-                                    }) {
-                                        Icon(Icons.Default.Share, contentDescription = null)
-                                        Text("Share")
+                                    }
+                                }
+                                state.fileResult?.let { fileResult ->
+                                    Spacer(Modifier.height(8.dp))
+                                    val file = remember(fileResult.path) { File(fileResult.path) }
+                                    val uri = remember(file) {
+                                        FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
+                                    }
+                                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                        FilledTonalButton(onClick = {
+                                            org.phireox.ofa.core.files.FileSaver.saveToDownloads(context, file, file.name)
+                                        }) {
+                                            Icon(Icons.Default.Download, contentDescription = null)
+                                            Text("Save")
+                                        }
+                                        FilledTonalButton(onClick = {
+                                            val intent = android.content.Intent(android.content.Intent.ACTION_VIEW).apply {
+                                                setDataAndType(uri, fileResult.mimeType)
+                                                addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                                            }
+                                            context.startActivity(android.content.Intent.createChooser(intent, "Open"))
+                                        }) {
+                                            Icon(Icons.Default.OpenInNew, contentDescription = null)
+                                            Text("Open")
+                                        }
+                                        FilledTonalButton(onClick = {
+                                            val intent = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
+                                                type = fileResult.mimeType
+                                                putExtra(android.content.Intent.EXTRA_STREAM, uri)
+                                                addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                                            }
+                                            context.startActivity(android.content.Intent.createChooser(intent, "Share file"))
+                                        }) {
+                                            Icon(Icons.Default.Share, contentDescription = null)
+                                            Text("Share file")
+                                        }
                                     }
                                 }
                             }

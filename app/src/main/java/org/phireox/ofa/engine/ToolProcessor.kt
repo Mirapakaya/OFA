@@ -1,11 +1,13 @@
 package org.phireox.ofa.engine
 
+import android.content.Context
 import android.graphics.Bitmap
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.EncodeHintType
 import com.google.zxing.qrcode.QRCodeWriter
 import org.json.JSONArray
 import org.json.JSONObject
+import org.phireox.ofa.engine.BusinessPdfGenerator
 import org.phireox.ofa.data.model.Tool
 import org.phireox.ofa.data.model.ToolType
 import java.math.BigInteger
@@ -21,21 +23,25 @@ typealias ParamMap = Map<String, String>
 
 sealed class ToolResult {
     data class Text(val value: String) : ToolResult()
+    data class File(val path: String, val mimeType: String = "application/octet-stream") : ToolResult()
     data class Error(val message: String) : ToolResult()
 }
 
 object ToolProcessor {
 
-    fun process(tool: Tool, input: String, params: ParamMap = emptyMap()): ToolResult {
+    fun process(context: android.content.Context?, tool: Tool, input: String, params: ParamMap = emptyMap()): ToolResult {
         return try {
             when (tool.toolType) {
                 ToolType.TEXT_PROCESSOR -> processText(tool.id, input, params)
                 ToolType.GENERATOR -> processGenerator(tool.id, params)
                 ToolType.CALCULATOR -> processCalculator(tool.id, params)
                 ToolType.CONVERTER -> processCalculator(tool.id, params)
-                ToolType.DATA_PROCESSOR -> processData(tool.id, input)
+                ToolType.DATA_PROCESSOR -> processData(tool.id, input, params)
                 ToolType.QR_GENERATOR -> ToolResult.Text("QR generated")
-                ToolType.BUSINESS_TEMPLATE -> processBusinessTemplate(tool.id, params)
+                ToolType.BUSINESS_TEMPLATE -> {
+                    if (context == null) return ToolResult.Error("Context required for PDF generation")
+                    BusinessPdfGenerator.generate(context, tool.id, params)
+                }
                 else -> ToolResult.Text("Processing not yet implemented for ${tool.title}")
             }
         } catch (e: Exception) {
@@ -102,6 +108,24 @@ object ToolProcessor {
             "morse_converter" -> ToolResult.Text(convertMorse(input))
             "number_base_converter" -> ToolResult.Text(convertBase(input, params["fromBase"] ?: "10", params["toBase"] ?: "2"))
             "svg_optimizer" -> ToolResult.Text(optimizeSvg(input))
+            "json_repair" -> ToolResult.Text(repairJson(input))
+            "yaml_formatter" -> ToolResult.Text(formatYaml(input))
+            "yaml_validator" -> ToolResult.Text(validateYaml(input))
+            "xml_formatter" -> ToolResult.Text(formatXml(input))
+            "xml_minifier" -> ToolResult.Text(minifyXml(input))
+            "xml_validator" -> ToolResult.Text(validateXml(input))
+            "dockerfile_analyzer" -> ToolResult.Text(analyzeDockerfile(input))
+            "csp_generator" -> ToolResult.Text(generateCsp(input))
+            "log_analyzer" -> ToolResult.Text(analyzeLog(input))
+            "env_validator" -> ToolResult.Text(validateEnv(input))
+            "env_leak_scanner" -> ToolResult.Text(scanEnvLeaks(input))
+            "api_secret_scanner" -> ToolResult.Text(scanApiSecrets(input))
+            "git_secret_scanner" -> ToolResult.Text(scanGitSecrets(input))
+            "dns_analyzer" -> ToolResult.Text(analyzeDns(input))
+            "citation_apa" -> ToolResult.Text(formatCitationApa(params))
+            "citation_mla" -> ToolResult.Text(formatCitationMla(params))
+            "citation_ieee" -> ToolResult.Text(formatCitationIeee(params))
+            "academic_formatter" -> ToolResult.Text(formatAcademic(input, params["style"] ?: "APA"))
             else -> ToolResult.Text(input)
         }
     }
@@ -121,16 +145,27 @@ object ToolProcessor {
                 val b = min.coerceAtLeast(max)
                 ToolResult.Text((a..b).random().toString())
             }
+            "gitignore_generator" -> ToolResult.Text(generateGitignore(params["stack"] ?: "android"))
+            "changelog_generator" -> ToolResult.Text(generateChangelog(params["version"] ?: "1.0.0", params["date"] ?: ""))
+            "docker_compose_builder" -> ToolResult.Text(generateDockerCompose(params))
             "random_string" -> ToolResult.Text(generateRandomString(params["length"]?.toIntOrNull() ?: 16))
             else -> ToolResult.Text("Generated output")
         }
     }
 
-    private fun processData(toolId: String, input: String): ToolResult {
+    private fun processData(toolId: String, input: String, params: ParamMap): ToolResult {
         return when (toolId) {
             "csv_to_json" -> ToolResult.Text(csvToJson(input))
             "json_to_csv" -> ToolResult.Text(jsonToCsv(input))
             "csv_viewer" -> ToolResult.Text(csvToJson(input))
+            "csv_cleaner" -> ToolResult.Text(csvCleaner(input))
+            "csv_sort" -> ToolResult.Text(csvSort(input, params["column"]?.toIntOrNull() ?: 0))
+            "csv_filter" -> ToolResult.Text(csvFilter(input, params["column"]?.toIntOrNull() ?: 0, params["term"] ?: ""))
+            "csv_merge" -> ToolResult.Text(csvMerge(input, params["other"] ?: ""))
+            "csv_split" -> ToolResult.Text(csvSplit(input, params["rows"]?.toIntOrNull() ?: 10))
+            "csv_deduplicate" -> ToolResult.Text(csvDeduplicate(input))
+            "csv_column_map" -> ToolResult.Text(csvColumnMap(input, params["mapping"] ?: ""))
+            "csv_to_sql" -> ToolResult.Text(csvToSql(input))
             else -> ToolResult.Text(input)
         }
     }
@@ -190,6 +225,48 @@ object ToolProcessor {
                     val coverage = params["coverage"]?.toDoubleOrNull() ?: 10.0
                     val liters = area / coverage
                     ToolResult.Text("Paint needed: ${"%.2f".format(liters)} L")
+                }
+                "brick_quantity" -> {
+                    val length = params["length"]?.toDoubleOrNull() ?: 0.0
+                    val height = params["height"]?.toDoubleOrNull() ?: 0.0
+                    val brickL = params["brick_length"]?.toDoubleOrNull() ?: 190.0
+                    val brickH = params["brick_height"]?.toDoubleOrNull() ?: 90.0
+                    val wallArea = length * height
+                    val brickArea = (brickL / 1000) * (brickH / 1000)
+                    val count = if (brickArea > 0) (wallArea / brickArea).toInt() else 0
+                    ToolResult.Text("Wall area: ${"%.2f".format(wallArea)} m²\nBricks needed: $count (with 5% waste: ${(count * 1.05).toInt()})")
+                }
+                "block_quantity" -> {
+                    val length = params["length"]?.toDoubleOrNull() ?: 0.0
+                    val height = params["height"]?.toDoubleOrNull() ?: 0.0
+                    val blockL = params["block_length"]?.toDoubleOrNull() ?: 400.0
+                    val blockH = params["block_height"]?.toDoubleOrNull() ?: 200.0
+                    val wallArea = length * height
+                    val blockArea = (blockL / 1000) * (blockH / 1000)
+                    val count = if (blockArea > 0) (wallArea / blockArea).toInt() else 0
+                    ToolResult.Text("Wall area: ${"%.2f".format(wallArea)} m²\nBlocks needed: $count (with 5% waste: ${(count * 1.05).toInt()})")
+                }
+                "plaster_calculator" -> {
+                    val area = params["area"]?.toDoubleOrNull() ?: 0.0
+                    val thickness = params["thickness"]?.toDoubleOrNull() ?: 12.0
+                    val volume = area * (thickness / 1000)
+                    val cement = volume * 5.5
+                    val sand = volume * 0.5
+                    ToolResult.Text("Plaster volume: ${"%.3f".format(volume)} m³\nCement: ${"%.2f".format(cement)} bags\nSand: ${"%.3f".format(sand)} m³")
+                }
+                "excavation_calculator" -> {
+                    val length = params["length"]?.toDoubleOrNull() ?: 0.0
+                    val width = params["width"]?.toDoubleOrNull() ?: 0.0
+                    val depth = params["depth"]?.toDoubleOrNull() ?: 0.0
+                    val volume = length * width * depth
+                    ToolResult.Text("Excavation volume: ${"%.3f".format(volume)} m³")
+                }
+                "slope_calculator" -> {
+                    val rise = params["rise"]?.toDoubleOrNull() ?: 0.0
+                    val run = params["run"]?.toDoubleOrNull() ?: 0.0
+                    val slope = if (run != 0.0) rise / run else 0.0
+                    val angle = kotlin.math.atan(slope) * 180 / kotlin.math.PI
+                    ToolResult.Text("Slope: ${"%.4f".format(slope)}\nAngle: ${"%.2f".format(angle)}°")
                 }
                 "concrete_calculator" -> {
                     val length = params["length"]?.toDoubleOrNull() ?: 0.0
@@ -339,6 +416,15 @@ object ToolProcessor {
                     val rgb = hexToRgb(hex)
                     ToolResult.Text(if (rgb != null) "RGB: ${rgb.first}, ${rgb.second}, ${rgb.third}\nHEX: $hex" else "Invalid HEX color")
                 }
+                "unix_timestamp_converter" -> {
+                    val ts = params["timestamp"]?.toLongOrNull() ?: (System.currentTimeMillis() / 1000)
+                    val localSdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss z", Locale.getDefault())
+                    localSdf.timeZone = TimeZone.getDefault()
+                    ToolResult.Text("Unix: $ts\nLocal: ${localSdf.format(Date(ts * 1000))}")
+                }
+                "semantic_version" -> ToolResult.Text(compareSemVer(params["version1"] ?: "", params["version2"] ?: ""))
+                "subnet_calculator" -> ToolResult.Text(calculateSubnet(params["ip"] ?: "", params["mask"] ?: "255.255.255.0"))
+                "cidr_calculator" -> ToolResult.Text(calculateCidr(params["cidr"] ?: "192.168.0.0/24"))
                 "unit_converter" -> {
                     val value = params["value"]?.toDoubleOrNull() ?: 0.0
                     val from = params["from"] ?: ""
@@ -346,22 +432,75 @@ object ToolProcessor {
                     val result = convertUnit(value, from, to)
                     ToolResult.Text("$value $from = $result $to")
                 }
+                "simple_interest" -> {
+                    val principal = params["principal"]?.toDoubleOrNull() ?: 0.0
+                    val rate = params["rate"]?.toDoubleOrNull() ?: 0.0
+                    val years = params["years"]?.toDoubleOrNull() ?: 1.0
+                    val interest = principal * rate * years / 100
+                    ToolResult.Text("Principal: ${"%.2f".format(principal)}\nInterest: ${"%.2f".format(interest)}\nTotal: ${"%.2f".format(principal + interest)}")
+                }
+                "loan_calculator" -> {
+                    val principal = params["principal"]?.toDoubleOrNull() ?: 0.0
+                    val annualRate = params["rate"]?.toDoubleOrNull() ?: 0.0
+                    val years = params["years"]?.toDoubleOrNull() ?: 1.0
+                    val months = (years * 12).toInt()
+                    if (months <= 0 || annualRate < 0) {
+                        ToolResult.Text("Loan: 0")
+                    } else {
+                        val r = annualRate / 12 / 100
+                        val emi = principal * r * Math.pow(1 + r, months.toDouble()) / (Math.pow(1 + r, months.toDouble()) - 1)
+                        val total = emi * months
+                        val interest = total - principal
+                        ToolResult.Text("EMI: ${"%.2f".format(emi)}\nTotal interest: ${"%.2f".format(interest)}\nTotal payment: ${"%.2f".format(total)}")
+                    }
+                }
+                "discount_calculator" -> {
+                    val price = params["price"]?.toDoubleOrNull() ?: 0.0
+                    val discount = params["discount"]?.toDoubleOrNull() ?: 0.0
+                    val saved = price * discount / 100
+                    val final = price - saved
+                    ToolResult.Text("Original: ${"%.2f".format(price)}\nDiscount: ${"%.2f".format(saved)}\nFinal price: ${"%.2f".format(final)}")
+                }
+                "profit_calculator" -> {
+                    val cost = params["cost"]?.toDoubleOrNull() ?: 0.0
+                    val revenue = params["revenue"]?.toDoubleOrNull() ?: 0.0
+                    val profit = revenue - cost
+                    val margin = if (revenue != 0.0) (profit / revenue) * 100 else 0.0
+                    ToolResult.Text("Profit: ${"%.2f".format(profit)}\nMargin: ${"%.2f".format(margin)}%")
+                }
+                "margin_calculator" -> {
+                    val cost = params["cost"]?.toDoubleOrNull() ?: 0.0
+                    val revenue = params["revenue"]?.toDoubleOrNull() ?: 0.0
+                    val profit = revenue - cost
+                    val margin = if (revenue != 0.0) (profit / revenue) * 100 else 0.0
+                    ToolResult.Text("Margin: ${"%.2f".format(margin)}%\nProfit: ${"%.2f".format(profit)}")
+                }
+                "markup_calculator" -> {
+                    val cost = params["cost"]?.toDoubleOrNull() ?: 0.0
+                    val price = params["price"]?.toDoubleOrNull() ?: 0.0
+                    val markup = if (cost != 0.0) ((price - cost) / cost) * 100 else 0.0
+                    ToolResult.Text("Markup: ${"%.2f".format(markup)}%\nProfit: ${"%.2f".format(price - cost)}")
+                }
+                "savings_calculator" -> {
+                    val monthly = params["monthly"]?.toDoubleOrNull() ?: 0.0
+                    val annualRate = params["rate"]?.toDoubleOrNull() ?: 0.0
+                    val years = params["years"]?.toDoubleOrNull() ?: 1.0
+                    val months = (years * 12).toInt()
+                    val r = annualRate / 100 / 12
+                    val amount = if (r == 0.0) monthly * months else monthly * ((Math.pow(1 + r, months.toDouble()) - 1) / r)
+                    val invested = monthly * months
+                    ToolResult.Text("Invested: ${"%.2f".format(invested)}\nFuture value: ${"%.2f".format(amount)}\nInterest: ${"%.2f".format(amount - invested)}")
+                }
+                "salary_calculator" -> {
+                    val annual = params["annual"]?.toDoubleOrNull() ?: 0.0
+                    val deductions = params["deductions"]?.toDoubleOrNull() ?: 0.0
+                    val net = annual * (1 - deductions / 100)
+                    ToolResult.Text("Annual gross: ${"%.2f".format(annual)}\nAnnual net: ${"%.2f".format(net)}\nMonthly net: ${"%.2f".format(net / 12)}")
+                }
                 else -> ToolResult.Text("Result: ${params.values.joinToString()}")
             }
         } catch (e: Exception) {
             ToolResult.Error(e.localizedMessage ?: "Calculation error")
-        }
-    }
-
-    private fun processBusinessTemplate(toolId: String, params: ParamMap): ToolResult {
-        return when (toolId) {
-            "invoice_generator" -> ToolResult.Text(generateInvoice(params))
-            "receipt_generator" -> ToolResult.Text(generateReceipt(params))
-            "business_card" -> ToolResult.Text(generateBusinessCard(params))
-            "price_list" -> ToolResult.Text(generatePriceList(params))
-            "certificate_generator" -> ToolResult.Text(generateCertificate(params))
-            "id_card_generator" -> ToolResult.Text(generateIdCard(params))
-            else -> ToolResult.Text("Business template generated")
         }
     }
 
@@ -444,6 +583,75 @@ object ToolProcessor {
         return sb.toString()
     }
 
+    private fun parseCsv(input: String): List<List<String>> {
+        return input.lines().filter { it.isNotBlank() }.map { line ->
+            if (line.contains("\"") || line.contains("'")) {
+                line.split(",").map { it.trim().removeSurrounding("\"").removeSurrounding("'") }
+            } else {
+                line.split(",").map { it.trim() }
+            }
+        }
+    }
+
+    private fun csvCleaner(input: String): String {
+        val rows = parseCsv(input).filter { row -> row.any { it.isNotBlank() } }
+        return rows.joinToString("\n") { row -> row.joinToString(",") }
+    }
+
+    private fun csvSort(input: String, column: Int): String {
+        val rows = parseCsv(input)
+        if (rows.size < 2) return input
+        val header = rows.first()
+        val data = rows.drop(1)
+        val sorted = data.sortedBy { it.getOrNull(column)?.lowercase() ?: "" }
+        return (listOf(header) + sorted).joinToString("\n") { it.joinToString(",") }
+    }
+
+    private fun csvFilter(input: String, column: Int, term: String): String {
+        val rows = parseCsv(input)
+        if (rows.size < 2) return input
+        val header = rows.first()
+        val filtered = rows.drop(1).filter { it.getOrNull(column)?.contains(term, ignoreCase = true) == true }
+        return (listOf(header) + filtered).joinToString("\n") { it.joinToString(",") }
+    }
+
+    private fun csvMerge(input: String, other: String): String {
+        val rowsA = parseCsv(input)
+        val rowsB = parseCsv(other)
+        return (rowsA + rowsB).joinToString("\n") { it.joinToString(",") }
+    }
+
+    private fun csvSplit(input: String, rowsPerFile: Int): String {
+        val rows = parseCsv(input)
+        if (rows.size <= rowsPerFile) return input
+        val chunks = rows.chunked(rowsPerFile.coerceAtLeast(1))
+        return chunks.mapIndexed { index, chunk ->
+            "--- Part ${index + 1} ---\n${chunk.joinToString("\n") { it.joinToString(",") }}"
+        }.joinToString("\n\n")
+    }
+
+    private fun csvDeduplicate(input: String): String {
+        val rows = parseCsv(input)
+        val seen = mutableSetOf<List<String>>()
+        val unique = rows.filter { seen.add(it) }
+        return unique.joinToString("\n") { it.joinToString(",") }
+    }
+
+    private fun csvColumnMap(input: String, mapping: String): String {
+        val rows = parseCsv(input)
+        if (rows.isEmpty()) return input
+        val map = mapping.split(",").mapNotNull { part ->
+            val p = part.split(":")
+            if (p.size == 2) p[0].trim().toIntOrNull() to p[1].trim() else null
+        }.toMap()
+        return rows.map { row ->
+            map.entries.map { (from, to) ->
+                val value = row.getOrNull(from) ?: ""
+                "$to:$value"
+            }.joinToString(",")
+        }.joinToString("\n")
+    }
+
     private fun testRegex(input: String, pattern: String): String {
         return try {
             val matches = Regex(pattern).findAll(input).map { it.value }.toList()
@@ -467,30 +675,6 @@ object ToolProcessor {
         val month = params["month"] ?: "*"
         val weekday = params["weekday"] ?: "*"
         return "$minute $hour $day $month $weekday"
-    }
-
-    private fun generateInvoice(params: ParamMap): String {
-        return "INVOICE\nFrom: ${params["from"] ?: "OFA User"}\nTo: ${params["to"] ?: "Customer"}\nAmount: ${params["amount"] ?: "0"}\nThank you for your business."
-    }
-
-    private fun generateReceipt(params: ParamMap): String {
-        return "RECEIPT\nReceived from: ${params["from"] ?: "Customer"}\nAmount: ${params["amount"] ?: "0"}\nDate: ${SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())}"
-    }
-
-    private fun generateBusinessCard(params: ParamMap): String {
-        return "${params["name"] ?: "Name"}\n${params["title"] ?: ""}\n${params["phone"] ?: ""}\n${params["email"] ?: ""}"
-    }
-
-    private fun generatePriceList(params: ParamMap): String {
-        return "PRICE LIST\n${params["items"] ?: ""}"
-    }
-
-    private fun generateCertificate(params: ParamMap): String {
-        return "CERTIFICATE\nThis certifies that ${params["name"] ?: "____"} has completed ${params["course"] ?: "the course"}."
-    }
-
-    private fun generateIdCard(params: ParamMap): String {
-        return "ID CARD\nName: ${params["name"] ?: ""}\nID: ${params["id"] ?: ""}\nExpires: ${params["expires"] ?: ""}"
     }
 
     private fun hash(input: String, algo: String): String {
@@ -674,5 +858,335 @@ object ToolProcessor {
             "k" -> base + 273.15
             else -> base
         }
+    }
+
+    private fun repairJson(input: String): String {
+        return try {
+            JSONObject(input)
+            formatJson(input)
+        } catch (_: Exception) {
+            try {
+                JSONArray(input)
+                formatJson(input)
+            } catch (_: Exception) {
+                "Could not repair JSON"
+            }
+        }
+    }
+
+    private fun formatYaml(input: String): String {
+        return input.lines().map { line ->
+            val trimmed = line.trimStart()
+            val indent = line.length - trimmed.length
+            " ".repeat(indent) + trimmed.trimEnd()
+        }.filter { it.isNotBlank() }.joinToString("\n")
+    }
+
+    private fun validateYaml(input: String): String {
+        return try {
+            val lines = input.lines()
+            var indent = 0
+            for (line in lines) {
+                if (line.isBlank()) continue
+                val trimmed = line.trimStart()
+                if (trimmed.startsWith("#")) continue
+                if (trimmed.contains(":") && !trimmed.contains(": ") && !trimmed.endsWith(":")) {
+                    return "Invalid YAML: missing space after colon"
+                }
+            }
+            "Valid YAML structure"
+        } catch (e: Exception) {
+            "Invalid YAML: ${e.localizedMessage}"
+        }
+    }
+
+    private fun formatXml(input: String): String {
+        return try {
+            val factory = javax.xml.parsers.DocumentBuilderFactory.newInstance()
+            val builder = factory.newDocumentBuilder()
+            val doc = builder.parse(java.io.ByteArrayInputStream(input.toByteArray()))
+            val transformer = javax.xml.transform.TransformerFactory.newInstance().newTransformer()
+            transformer.setOutputProperty(javax.xml.transform.OutputKeys.INDENT, "yes")
+            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2")
+            val writer = java.io.StringWriter()
+            transformer.transform(javax.xml.transform.dom.DOMSource(doc), javax.xml.transform.stream.StreamResult(writer))
+            writer.toString()
+        } catch (e: Exception) {
+            "Invalid XML: ${e.localizedMessage}"
+        }
+    }
+
+    private fun minifyXml(input: String): String {
+        return input.replace(Regex(">\s+<"), "><")
+    }
+
+    private fun validateXml(input: String): String {
+        return try {
+            val factory = javax.xml.parsers.DocumentBuilderFactory.newInstance()
+            val builder = factory.newDocumentBuilder()
+            builder.parse(java.io.ByteArrayInputStream(input.toByteArray()))
+            "Valid XML"
+        } catch (e: Exception) {
+            "Invalid XML: ${e.localizedMessage}"
+        }
+    }
+
+    private fun generateGitignore(stack: String): String {
+        val common = listOf(".DS_Store", "*.log", ".idea/", ".vscode/", "*.iml", "/build", "/dist", "*.tmp")
+        val specific = when (stack.lowercase()) {
+            "android", "kotlin", "java" -> listOf(".gradle/", "/local.properties", "/captures", "/.externalNativeBuild", "/.cxx", "*.apk", "*.aab")
+            "python" -> listOf("__pycache__/", "*.py[cod]", "*.egg-info/", ".venv/", "venv/", "*.pyc")
+            "node" -> listOf("node_modules/", "/dist", "/build", ".next/", "*.lock")
+            "go" -> listOf("/vendor", "*.exe", "*.test")
+            "rust" -> listOf("/target", "Cargo.lock")
+            "flutter" -> listOf(".dart_tool/", ".packages", "build/", "*.lock")
+            else -> emptyList()
+        }
+        return (common + specific).joinToString("\n")
+    }
+
+    private fun generateChangelog(version: String, date: String): String {
+        val d = date.ifBlank { SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date()) }
+        return """# Changelog
+
+## [$version] - $d
+
+### Added
+- New features
+
+### Changed
+- Improvements
+
+### Fixed
+- Bug fixes
+""".trimIndent()
+    }
+
+    private fun generateDockerCompose(params: ParamMap): String {
+        val service = params["service"] ?: "app"
+        val image = params["image"] ?: "myapp:latest"
+        val port = params["port"] ?: "8080"
+        return """version: "3.8"
+services:
+  $service:
+    image: $image
+    ports:
+      - "$port:$port"
+    restart: unless-stopped
+""".trimIndent()
+    }
+
+    private fun analyzeDockerfile(input: String): String {
+        val lines = input.lines()
+        val fromCount = lines.count { it.trim().startsWith("FROM", ignoreCase = true) }
+        val runCount = lines.count { it.trim().startsWith("RUN", ignoreCase = true) }
+        val copyCount = lines.count { it.trim().startsWith("COPY", ignoreCase = true) }
+        return "FROM instructions: $fromCount\nRUN instructions: $runCount\nCOPY instructions: $copyCount\nTotal lines: ${lines.size}"
+    }
+
+    private fun generateCsp(input: String): String {
+        return "default-src 'self'; script-src 'self' $input; style-src 'self' 'unsafe-inline'; img-src 'self' data:;"
+    }
+
+    private fun analyzeLog(input: String): String {
+        val lines = input.lines()
+        val errorCount = lines.count { it.contains("ERROR", ignoreCase = true) }
+        val warnCount = lines.count { it.contains("WARN", ignoreCase = true) }
+        val infoCount = lines.count { it.contains("INFO", ignoreCase = true) }
+        return "Total lines: ${lines.size}\nErrors: $errorCount\nWarnings: $warnCount\nInfo: $infoCount"
+    }
+
+    private fun validateEnv(input: String): String {
+        val issues = mutableListOf<String>()
+        input.lines().forEachIndexed { i, line ->
+            val trimmed = line.trim()
+            if (trimmed.isBlank() || trimmed.startsWith("#")) return@forEachIndexed
+            if (!trimmed.contains("=")) issues.add("Line ${i + 1}: missing '='")
+        }
+        return if (issues.isEmpty()) "Valid .env format" else issues.joinToString("\n")
+    }
+
+    private fun scanEnvLeaks(input: String): String {
+        val findings = input.lines().filter { it.contains("=") && (it.contains("KEY") || it.contains("SECRET") || it.contains("TOKEN") || it.contains("PASSWORD")) }
+        return if (findings.isEmpty()) "No obvious secrets in .env" else "Possible secrets found:\n${findings.joinToString("\n")}"
+    }
+
+    private fun scanApiSecrets(input: String): String {
+        val patterns = listOf("sk_" to "API key", "ghp_" to "GitHub token", "AKIA" to "AWS key", "xoxb-" to "Slack token")
+        val found = patterns.filter { input.contains(it.first) }.map { it.second }
+        return if (found.isEmpty()) "No common API secret patterns found." else "Possible secrets: ${found.joinToString(", ")}"
+    }
+
+    private fun scanGitSecrets(input: String): String {
+        return scanApiSecrets(input)
+    }
+
+    private fun analyzeDns(input: String): String {
+        val domain = input.trim().lowercase()
+        return if (domain.matches(Regex("^[a-z0-9]([a-z0-9\-]{0,61}[a-z0-9])?(\.[a-z0-9]([a-z0-9\-]{0,61}[a-z0-9])?)*\$"))) {
+            "Domain appears valid: $domain"
+        } else {
+            "Invalid domain format"
+        }
+    }
+
+    private fun compareSemVer(v1: String, v2: String): String {
+        fun parse(v: String) = v.removePrefix("v").split(".").map { it.toIntOrNull() ?: 0 }
+        val a = parse(v1)
+        val b = parse(v2)
+        for (i in 0 until maxOf(a.size, b.size)) {
+            val x = a.getOrElse(i) { 0 }
+            val y = b.getOrElse(i) { 0 }
+            if (x != y) return if (x > y) "$v1 > $v2" else "$v1 < $v2"
+        }
+        return "$v1 == $v2"
+    }
+
+    private fun calculateSubnet(ip: String, mask: String): String {
+        return try {
+            val ipLong = ipToLong(ip) ?: return "Invalid IP address"
+            val maskBits = when {
+                mask.matches(Regex("^\\d+")) -> mask.toIntOrNull()
+                else -> maskToBits(mask)
+            }
+            if (maskBits == null || maskBits !in 1..30) return "Invalid subnet mask"
+            val subnetMask = 0xFFFFFFFFL shl (32 - maskBits)
+            val network = ipLong and subnetMask
+            val broadcast = network or (0xFFFFFFFFL ushr maskBits)
+            "IP: $ip\nMask bits: $maskBits\nNetwork: ${longToIp(network)}\nBroadcast: ${longToIp(broadcast)}\nUsable hosts: ${broadcast - network - 1}"
+        } catch (e: Exception) {
+            "Invalid input: ${e.localizedMessage}"
+        }
+    }
+
+    private fun calculateCidr(cidr: String): String {
+        return try {
+            val parts = cidr.split("/")
+            val ip = parts[0]
+            val prefix = parts[1].toInt()
+            if (prefix !in 1..30) return "Invalid CIDR prefix"
+            val ipLong = ipToLong(ip) ?: return "Invalid IP address"
+            val subnetMask = 0xFFFFFFFFL shl (32 - prefix)
+            val network = ipLong and subnetMask
+            val broadcast = network or (0xFFFFFFFFL ushr prefix)
+            val usable = broadcast - network - 1
+            "CIDR: $cidr\nNetwork: ${longToIp(network)}/$prefix\nBroadcast: ${longToIp(broadcast)}\nUsable hosts: $usable"
+        } catch (e: Exception) {
+            "Invalid CIDR: ${e.localizedMessage}"
+        }
+    }
+
+    private fun ipToLong(ip: String): Long? {
+        val parts = ip.split(".").map { it.toIntOrNull() ?: return null }
+        if (parts.size != 4 || parts.any { it !in 0..255 }) return null
+        return parts.fold(0L) { acc, part -> (acc shl 8) or part.toLong() }
+    }
+
+    private fun longToIp(value: Long): String {
+        return listOf((value ushr 24) and 0xFF, (value ushr 16) and 0xFF, (value ushr 8) and 0xFF, value and 0xFF).joinToString(".")
+    }
+
+    private fun maskToBits(mask: String): Int? {
+        val long = ipToLong(mask) ?: return null
+        var bits = 0
+        var value = long
+        while (value != 0L && (value and 1L) == 1L) {
+            bits++
+            value = value ushr 1
+        }
+        return if (value == 0L) bits else null
+    }
+
+    private fun formatCitationApa(params: ParamMap): String {
+        val author = params["author"] ?: ""
+        val year = params["year"] ?: ""
+        val title = params["title"] ?: ""
+        val publisher = params["publisher"] ?: ""
+        val url = params["url"] ?: ""
+        return "$author ($year). $title. $publisher. ${if (url.isNotBlank()) "URL: $url" else ""}".trim()
+    }
+
+    private fun formatCitationMla(params: ParamMap): String {
+        val author = params["author"] ?: ""
+        val year = params["year"] ?: ""
+        val title = params["title"] ?: ""
+        val publisher = params["publisher"] ?: ""
+        val url = params["url"] ?: ""
+        return "$author. \"$title.\" $publisher, $year. ${if (url.isNotBlank()) url else ""}".trim()
+    }
+
+    private fun formatCitationIeee(params: ParamMap): String {
+        val author = params["author"] ?: ""
+        val year = params["year"] ?: ""
+        val title = params["title"] ?: ""
+        val publisher = params["publisher"] ?: ""
+        return "[$author] $title, $publisher, $year.".trim()
+    }
+
+    private fun formatAcademic(input: String, style: String): String {
+        return when (style.uppercase()) {
+            "APA" -> "APA formatted:\n${input.uppercase().replace("\n", "\n- ")}"
+            "MLA" -> "MLA formatted:\n${input.uppercase().replace("\n", "\n- ")}"
+            else -> "Academic formatted ($style):\n${input.replace("\n", "\n- ")}"
+        }
+    }
+
+    private fun parseCsv(input: String): List<List<String>> {
+        return input.lines().map { it.split(",").map { v -> v.trim() } }.filter { it.isNotEmpty() && it.any { c -> c.isNotBlank() } }
+    }
+
+    private fun csvToString(rows: List<List<String>>): String {
+        return rows.joinToString("\n") { it.joinToString(",") }
+    }
+
+    private fun csvCleaner(input: String): String = csvToString(parseCsv(input).filter { row -> row.any { it.isNotBlank() } })
+
+    private fun csvDeduplicate(input: String): String {
+        val rows = parseCsv(input)
+        val seen = mutableSetOf<List<String>>()
+        return csvToString(rows.filter { seen.add(it) })
+    }
+
+    private fun csvSort(input: String, column: Int): String {
+        val rows = parseCsv(input)
+        if (rows.size < 2) return input
+        return csvToString(listOf(rows.first()) + rows.drop(1).sortedBy { it.getOrNull(column) ?: "" })
+    }
+
+    private fun csvFilter(input: String, column: Int, term: String): String {
+        val rows = parseCsv(input)
+        if (rows.size < 2) return input
+        return csvToString(listOf(rows.first()) + rows.drop(1).filter { it.getOrNull(column)?.contains(term, ignoreCase = true) == true })
+    }
+
+    private fun csvMerge(input: String, other: String): String = csvToString(parseCsv(input) + parseCsv(other))
+
+    private fun csvSplit(input: String, rows: Int): String {
+        val all = parseCsv(input)
+        if (all.size < 2) return input
+        val header = all.first()
+        val chunks = all.drop(1).chunked(rows.coerceAtLeast(1))
+        return chunks.joinToString("\n---\n") { chunk -> csvToString(listOf(header) + chunk) }
+    }
+
+    private fun csvToSql(input: String): String {
+        val rows = parseCsv(input)
+        if (rows.size < 2) return ""
+        val table = "records"
+        val columns = rows.first().map { it.replace(Regex("[^A-Za-z0-9_]"), "_") }.joinToString(", ")
+        return "CREATE TABLE $table ($columns);\n" + rows.drop(1).joinToString("\n") { row ->
+            "INSERT INTO $table ($columns) VALUES (${row.joinToString(", ") { "'$it'" }});"
+        }
+    }
+
+    private fun csvColumnMap(input: String, mapping: String): String {
+        val rows = parseCsv(input)
+        if (rows.isEmpty()) return input
+        val map = mapping.split(",").associate {
+            val parts = it.split(":")
+            parts[0].trim() to (parts.getOrNull(1)?.trim() ?: parts[0].trim())
+        }
+        val newHeader = rows.first().map { map[it] ?: it }
+        return csvToString(listOf(newHeader) + rows.drop(1))
     }
 }
