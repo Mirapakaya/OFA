@@ -29,15 +29,12 @@ export default function SessionPage({
     try {
       setStep("connecting");
 
-      // Generate our ephemeral key pair
       const keyPair = await generateKeyPair();
 
-      // Create signaling transport
       const signaling = createServerSignalingTransport(sid);
       await signaling.joinSession();
       cleanupRef.current.push(() => signaling.close());
 
-      // Create peer connection (receiver side)
       const pc = createPeerConnection(
         (state) => {
           if (state.status === "failed" || state.status === "closed") {
@@ -49,7 +46,6 @@ export default function SessionPage({
       );
       cleanupRef.current.push(() => closePeerConnection(pc));
 
-      // Handle incoming data channel from sender
       pc.ondatachannel = (event) => {
         const channel = event.channel;
         channel.binaryType = "arraybuffer";
@@ -75,11 +71,9 @@ export default function SessionPage({
           setError(errorEvent.error?.message ?? "DataChannel error");
         };
 
-        // Placeholder — will be replaced during key exchange
         channel.onmessage = () => {};
       };
 
-      // Accept the offer from the sender
       await acceptOfferAndSignal(pc, signaling, sid);
     } catch (err) {
       setStep("error");
@@ -88,7 +82,6 @@ export default function SessionPage({
   }, []);
 
   useEffect(() => {
-    // Check browser support
     const unsupported = checkBrowserSupport();
     if (unsupported) {
       setStep("error");
@@ -96,7 +89,6 @@ export default function SessionPage({
       return;
     }
 
-    // Extract secret from URL fragment
     const fullUrl = window.location.href;
     const parsed = parsePairingUrl(fullUrl);
 
@@ -106,7 +98,6 @@ export default function SessionPage({
       return;
     }
 
-    // Start connection process
     initConnection(parsed.sessionId, parsed.secret);
 
     const cleanup = cleanupRef.current;
@@ -117,14 +108,12 @@ export default function SessionPage({
     };
   }, [sessionId, initConnection]);
 
-  /** Perform the ECDH key exchange over the DataChannel, then start receiving files */
   async function doKeyExchangeAndReceive(
     channel: RTCDataChannel,
     keyPair: KeyPair,
     sessionSecret: string,
   ) {
     try {
-      // 1. Wait for the sender's key exchange message
       const senderPublicKeyBase64 = await new Promise<string>((resolve, reject) => {
         const timeout = setTimeout(() => reject(new Error("Key exchange timed out")), 15_000);
         channel.onmessage = (event) => {
@@ -136,15 +125,11 @@ export default function SessionPage({
                 resolve(msg.publicKey);
                 return;
               }
-            } catch {
-              // Not a key-exchange message — ignore
-            }
+            } catch {}
           }
-          // Binary data during key exchange phase — ignore
         };
       });
 
-      // 2. Send our public key back to the sender
       const ourPublicKeyBase64 = btoa(String.fromCharCode(...keyPair.publicKeyBytes));
       const keyExchangeMsg = JSON.stringify({
         type: "key-exchange",
@@ -153,21 +138,16 @@ export default function SessionPage({
       });
       channel.send(keyExchangeMsg);
 
-      // 3. Decode sender's public key and perform ECDH key agreement
       const senderPublicKeyBytes = Uint8Array.from(atob(senderPublicKeyBase64), (c) => c.charCodeAt(0));
       const sharedSecret = await performKeyAgreement(keyPair.privateKey, senderPublicKeyBytes, keyPair.curve);
 
-      // 4. Derive session keys using shared secret + URL fragment secret as HKDF salt
       const salt = new TextEncoder().encode(sessionSecret);
       const sessionKeys = await deriveSessionKeys(sharedSecret, salt);
 
-      // 5. Derive and display verification phrase
       const phrase = await deriveVerificationPhrase(sharedSecret);
       setVerificationPhrase(phrase);
       setStep("transferring");
 
-      // 6. Start receiving files with the real encryption key
-      // The receiver's onmessage handler will be set by receiveFiles
       const receiver = receiveFiles(
         channel,
         sessionKeys.encryptionKey,
@@ -197,12 +177,12 @@ export default function SessionPage({
       )}
 
       {step === "verifying" && verificationPhrase && (
-        <div style={{ textAlign: "center" }}>
-          <p style={{ fontSize: "14px", color: "var(--muted)", marginBottom: "12px" }}>
+        <div className="text-center">
+          <p className="verification-hint">
             Verify that both devices show the same phrase:
           </p>
           <p className="verification-phrase">{verificationPhrase}</p>
-          <p style={{ fontSize: "13px", color: "var(--muted)", marginTop: "12px" }}>
+          <p className="verification-sub-hint">
             If the phrases match, the connection is verified.
           </p>
         </div>
@@ -211,8 +191,8 @@ export default function SessionPage({
       {step === "transferring" && (
         <>
           {verificationPhrase && (
-            <div style={{ textAlign: "center", marginBottom: "16px" }}>
-              <p style={{ fontSize: "14px", color: "var(--muted)", marginBottom: "8px" }}>
+            <div className="text-center mb-4">
+              <p className="verification-hint">
                 Verify that both devices show the same phrase:
               </p>
               <p className="verification-phrase">{verificationPhrase}</p>
@@ -235,7 +215,7 @@ export default function SessionPage({
       {step === "complete" && (
         <div className="transfer-complete">
           <p className="transfer-complete__check">All files received.</p>
-          <p style={{ fontSize: "14px", color: "var(--muted)", marginBottom: "16px" }}>
+          <p className="text-small text-muted mb-4">
             The transfer session has ended. Nothing remains on OFA servers.
           </p>
         </div>
@@ -243,13 +223,13 @@ export default function SessionPage({
 
       {step === "error" && (
         <div>
-          <p style={{ fontSize: "14px", color: "var(--muted)", marginBottom: "16px" }}>{error}</p>
+          <p className="text-small text-muted mb-4">{error}</p>
           <Link href="/" className="button button-secondary">Go back</Link>
         </div>
       )}
 
       {step !== "complete" && step !== "error" && (
-        <p className="session-status" style={{ fontSize: "13px", color: "var(--muted)", marginTop: "24px" }}>
+        <p className="session-status text-xs text-tertiary mt-4">
           Session: {sessionId.slice(0, 8)}…
         </p>
       )}
