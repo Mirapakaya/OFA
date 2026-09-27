@@ -70,7 +70,7 @@ export function createServerSignalingTransport(
 
     let lastOffer: string | null = null;
     let lastAnswer: string | null = null;
-    let seenIceCandidates = new Set<string>();
+    const seenIceCandidates = new Set<string>();
 
     while (polling) {
       const state = await fetchSession();
@@ -134,7 +134,7 @@ export function createServerSignalingTransport(
       return sessionId;
     },
 
-    async joinSession(sid: string): Promise<void> {
+    async joinSession(_sid: string): Promise<void> {
       // Start polling for the session
       startPolling();
     },
