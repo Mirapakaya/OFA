@@ -45,7 +45,7 @@ async function importRawPublicKey(
 
   return crypto.subtle.importKey(
     "raw",
-    rawBytes,
+    rawBytes as Uint8Array<ArrayBuffer>,
     algorithm,
     true,
     [],
