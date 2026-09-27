@@ -5,11 +5,11 @@
 // Tracks progress and supports cancellation via AbortSignal.
 
 import { readFileChunks, DEFAULT_CHUNK_SIZE } from "./chunk-reader";
-import { createFileMetadata, type FileMetadata } from "./index";
-import { encryptChunk, serializeChunk, type EncryptedChunk } from "@/lib/crypto/cipher";
+import { createFileMetadata } from "./index";
+import { encryptChunk, serializeChunk } from "@/lib/crypto/cipher";
 import { NonceManager } from "@/lib/crypto/nonce";
 import { sendDataWithBackpressure, isChannelReady } from "@/lib/webrtc/data-channel";
-import { formatSize, formatSpeed, formatETA } from "./file-utils";
+import { formatSize, formatETA } from "./file-utils";
 
 export interface SendProgress {
   fileIndex: number;
