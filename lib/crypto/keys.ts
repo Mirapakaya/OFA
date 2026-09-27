@@ -69,7 +69,7 @@ export async function generateKeyPair(): Promise<KeyPair> {
     algorithm,
     true,
     ["deriveBits"],
-  );
+  ) as CryptoKeyPair;
 
   const publicKeyBytes = await exportRawKey(keyPair.publicKey);
 
