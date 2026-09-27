@@ -34,7 +34,6 @@ export default function SendPage() {
   const abortRef = useRef<AbortController | null>(null);
   const cleanupRef = useRef<(() => void)[]>([]);
 
-  // Check browser support on mount
   useEffect(() => {
     const unsupported = checkBrowserSupport();
     if (unsupported) {
@@ -43,7 +42,6 @@ export default function SendPage() {
     }
   }, []);
 
-  // Cleanup on unmount
   useEffect(() => {
     const cleanup = cleanupRef.current;
     const abort = abortRef.current;
@@ -94,30 +92,23 @@ export default function SendPage() {
     }
 
     try {
-      // Create pairing session
       const baseUrl = window.location.origin;
       const pairingSession = createSendSession(baseUrl);
       setSession(pairingSession);
       setStep("pairing");
 
-      // Generate ephemeral key pair
       const keyPair = await generateKeyPair();
 
-      // Create signaling transport
       const signaling = createServerSignalingTransport(pairingSession.sessionId);
       await signaling.createSession();
       cleanupRef.current.push(() => signaling.close());
 
-      // Also try local pairing via BroadcastChannel
       const localPairing = createSenderPairing(
         pairingSession.sessionId,
-        () => {
-          // Local peer found — could switch to local signaling
-        },
+        () => {},
       );
       cleanupRef.current.push(() => localPairing.destroy());
 
-      // Create peer connection
       const pc = createPeerConnection(
         (state) => {
           if (state.status === "failed" || state.status === "closed") {
@@ -129,18 +120,15 @@ export default function SendPage() {
       );
       cleanupRef.current.push(() => closePeerConnection(pc));
 
-      // Create data channel (sender creates it)
       const channel = pc.createDataChannel("ofa-transfer", { ordered: true });
       channel.binaryType = "arraybuffer";
 
-      // Set up key exchange on channel open
       channel.onopen = () => {
         channel.bufferedAmountLowThreshold = 4 * 1024 * 1024;
         doKeyExchangeAndSend(channel, keyPair, pairingSession.secret);
       };
 
       channel.onclose = () => {
-        // Only show error if we haven't completed the transfer
         setStep((prev) => {
           if (prev !== "complete") {
             setError("The other device disconnected. Create a new transfer and try again.");
@@ -156,12 +144,9 @@ export default function SendPage() {
         setError(errorEvent.error?.message ?? "DataChannel error");
       };
 
-      // Placeholder message handler — will be replaced during key exchange
       channel.onmessage = () => {};
 
-      // Send offer via signaling
       await createOfferAndSignal(pc, signaling, pairingSession.sessionId);
-
       setStep("connecting");
     } catch (err) {
       setStep("error");
@@ -169,14 +154,12 @@ export default function SendPage() {
     }
   }, [files]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  /** Perform the ECDH key exchange over the DataChannel, then start sending files */
   const doKeyExchangeAndSend = useCallback(async (
     channel: RTCDataChannel,
     keyPair: KeyPair,
     sessionSecret: string,
   ) => {
     try {
-      // 1. Send our public key to the receiver
       const publicKeyBase64 = btoa(String.fromCharCode(...keyPair.publicKeyBytes));
       const keyExchangeMsg = JSON.stringify({
         type: "key-exchange",
@@ -185,7 +168,6 @@ export default function SendPage() {
       });
       channel.send(keyExchangeMsg);
 
-      // 2. Wait for the receiver's public key message
       const theirPublicKeyBase64 = await new Promise<string>((resolve, reject) => {
         const timeout = setTimeout(() => reject(new Error("Key exchange timed out")), 15_000);
         channel.onmessage = (event) => {
@@ -197,32 +179,24 @@ export default function SendPage() {
                 resolve(msg.publicKey);
                 return;
               }
-            } catch {
-              // Not a key-exchange message — ignore
-            }
+            } catch {}
           }
-          // Binary data during key exchange phase — ignore
         };
       });
 
-      // 3. Decode their public key and perform ECDH key agreement
       const theirPublicKeyBytes = Uint8Array.from(atob(theirPublicKeyBase64), (c) => c.charCodeAt(0));
       const sharedSecret = await performKeyAgreement(keyPair.privateKey, theirPublicKeyBytes, keyPair.curve);
 
-      // 4. Derive session keys using shared secret + URL fragment secret as HKDF salt
       const salt = new TextEncoder().encode(sessionSecret);
       const sessionKeys = await deriveSessionKeys(sharedSecret, salt);
 
-      // 5. Derive and display verification phrase
       const phrase = await deriveVerificationPhrase(sharedSecret);
       setVerificationPhrase(phrase);
       setStep("transferring");
 
-      // 6. Create abort controller for cancellation
       const abort = new AbortController();
       abortRef.current = abort;
 
-      // 7. Start sending files with the real encryption key
       await sendFiles(
         files.map((f) => f.file),
         channel,
@@ -231,7 +205,6 @@ export default function SendPage() {
         abort.signal,
       );
 
-      // Transfer complete
       setStep("complete");
     } catch (err) {
       if (err instanceof Error && err.message === "Transfer cancelled") {
@@ -327,8 +300,8 @@ export default function SendPage() {
       {step === "transferring" && (
         <>
           {verificationPhrase && (
-            <div style={{ textAlign: "center", marginBottom: "16px" }}>
-              <p style={{ fontSize: "14px", color: "var(--muted)", marginBottom: "8px" }}>
+            <div className="text-center mb-4">
+              <p className="verification-hint">
                 Verify that both devices show the same phrase:
               </p>
               <p className="verification-phrase">{verificationPhrase}</p>
@@ -352,7 +325,7 @@ export default function SendPage() {
         <div className="transfer-complete">
           <p className="status-label">Transfer complete</p>
           <p className="transfer-complete__check">{files.length} file{files.length !== 1 ? "s" : ""} sent.</p>
-          <p style={{ fontSize: "14px", color: "var(--muted)", marginBottom: "16px" }}>
+          <p className="text-small text-muted mb-4">
             The transfer session has ended.
           </p>
           <button className="button button-secondary" onClick={resetPage}>Done</button>
@@ -361,8 +334,8 @@ export default function SendPage() {
 
       {step === "error" && (
         <div>
-          <p className="status-label" style={{ color: "var(--error)" }}>Transfer failed</p>
-          <p style={{ fontSize: "14px", color: "var(--muted)", marginBottom: "16px" }}>{error}</p>
+          <p className="status-label text-error">Transfer failed</p>
+          <p className="text-small text-muted mb-4">{error}</p>
           <button className="button button-secondary" onClick={resetPage}>Try again</button>
         </div>
       )}
