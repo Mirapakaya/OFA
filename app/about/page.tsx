@@ -23,18 +23,18 @@ export default function AboutPage() {
           <li>You open the link on the receiving device.</li>
           <li>Both devices negotiate an encrypted peer connection.</li>
           <li>Files are transferred directly between the two browsers.</li>
-          <li>After the transfer, the is gone. Nothing is stored.</li>
+          <li>After the transfer, the session is gone. Nothing is stored.</li>
         </ol>
       </section>
 
       <section>
         <h2>Design principles</h2>
         <ul>
-          <li>No accounts — just open and use.</li>
-          <li>No permanent storage — files exist only during the transfer.</li>
-          <li>No tracking — no analytics, no cookies, no identifiers.</li>
-          <li>End-to-end encryption — AES-256-GCM with ephemeral keys.</li>
-          <li>Direct transfer — files go device to device, not through a server.</li>
+          <li>No accounts &mdash; just open and use.</li>
+          <li>No permanent storage &mdash; files exist only during the transfer.</li>
+          <li>No tracking &mdash; no analytics, no cookies, no identifiers.</li>
+          <li>End-to-end encryption &mdash; AES-256-GCM with ephemeral keys.</li>
+          <li>Direct transfer &mdash; files go device to device, not through a server.</li>
         </ul>
       </section>
 
