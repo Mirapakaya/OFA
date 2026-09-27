@@ -5,7 +5,6 @@ import { parsePairingUrl } from "@/lib/pairing/session";
 import { createServerSignalingTransport } from "@/lib/signaling";
 import { generateKeyPair, performKeyAgreement, deriveSessionKeys, deriveVerificationPhrase, type KeyPair } from "@/lib/crypto";
 import { createPeerConnection, acceptOfferAndSignal, closePeerConnection } from "@/lib/webrtc/connection";
-import { closeChannel } from "@/lib/webrtc/data-channel";
 import { receiveFiles, type ReceiveProgress } from "@/lib/transfer/receiver";
 import { checkBrowserSupport, createError } from "@/lib/error";
 import { TransferProgress } from "@/components/transfer/TransferProgress";
