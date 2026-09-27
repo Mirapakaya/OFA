@@ -258,7 +258,7 @@ export default function SendPage() {
               className="drop-zone__input"
               aria-label="Choose files to send"
             />
-            <button className="button button-secondary" onClick={() => inputRef.current?.click()}>
+            <button className="button secondary" onClick={() => inputRef.current?.click()}>
               Choose files
             </button>
           </div>
@@ -278,7 +278,7 @@ export default function SendPage() {
                   </li>
                 ))}
               </ul>
-              <button className="button button-primary" onClick={startPairing}>
+              <button className="button primary" onClick={startPairing}>
                 Connect device
               </button>
             </div>
@@ -328,7 +328,7 @@ export default function SendPage() {
           <p className="text-small text-muted mb-4">
             The transfer session has ended.
           </p>
-          <button className="button button-secondary" onClick={resetPage}>Done</button>
+          <button className="button secondary" onClick={resetPage}>Done</button>
         </div>
       )}
 
@@ -336,7 +336,7 @@ export default function SendPage() {
         <div>
           <p className="status-label text-error">Transfer failed</p>
           <p className="text-small text-muted mb-4">{error}</p>
-          <button className="button button-secondary" onClick={resetPage}>Try again</button>
+          <button className="button secondary" onClick={resetPage}>Try again</button>
         </div>
       )}
     </div>
