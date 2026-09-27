@@ -80,7 +80,7 @@ export async function createOfferAndSignal(
   await signaling.sendOffer(sessionId, fullOffer);
 
   // Set up ICE candidate forwarding (for any late candidates)
-  pc.onicecandidate = () => {
+  pc.onicecandidate = (event) => {
     if (event.candidate) {
       signaling.sendIceCandidate(sessionId, event.candidate.toJSON());
     }
@@ -120,7 +120,7 @@ export async function acceptOfferAndSignal(
     await signaling.sendAnswer(sessionId, fullAnswer);
 
     // Forward late ICE candidates
-    pc.onicecandidate = () => {
+    pc.onicecandidate = (event) => {
       if (event.candidate) {
         signaling.sendIceCandidate(sessionId, event.candidate.toJSON());
       }
