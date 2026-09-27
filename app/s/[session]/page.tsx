@@ -1,6 +1,7 @@
 "use client";
 
-import { use, useEffect, useRef, useState } from "react";
+import { use, useCallback, useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { parsePairingUrl } from "@/lib/pairing/session";
 import { createServerSignalingTransport } from "@/lib/signaling";
 import { generateKeyPair, performKeyAgreement, deriveSessionKeys, deriveVerificationPhrase, type KeyPair } from "@/lib/crypto";
@@ -52,9 +53,8 @@ export default function SessionPage({
     };
   }, [sessionId]);
 
-  async function initConnection(sid: string, secret: string) {
-    let channelRef: RTCDataChannel | null = null;
-
+  const initConnection = useCallback(async function(sid: string, secret: string) {
+    
     try {
       setStep("connecting");
 
@@ -82,8 +82,7 @@ export default function SessionPage({
       pc.ondatachannel = (event) => {
         const channel = event.channel;
         channel.binaryType = "arraybuffer";
-        channelRef = channel;
-
+        
         channel.onopen = () => {
           channel.bufferedAmountLowThreshold = 4 * 1024 * 1024;
           doKeyExchangeAndReceive(channel, keyPair, secret);
@@ -115,7 +114,7 @@ export default function SessionPage({
       setStep("error");
       setError(err instanceof Error ? err.message : "Something went wrong");
     }
-  }
+  }, [sessionId]);
 
   /** Perform the ECDH key exchange over the DataChannel, then start receiving files */
   async function doKeyExchangeAndReceive(
@@ -244,7 +243,7 @@ export default function SessionPage({
       {step === "error" && (
         <div>
           <p style={{ fontSize: "14px", color: "var(--muted)", marginBottom: "16px" }}>{error}</p>
-          <a href="/" className="button button-secondary">Go back</a>
+          <Link href="/" className="button button-secondary">Go back</Link>
         </div>
       )}
 
