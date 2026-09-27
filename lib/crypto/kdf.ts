@@ -14,7 +14,7 @@ export const HKDF_LABELS = {
   /** Key for file metadata (filenames, sizes, types) */
   METADATA_KEY: "ofa-metadata-key-v1",
   /** Key for protocol control messages */
-  CONTROL_KEY: "ofa-verification-key-v1",
+  CONTROL_KEY: "ofa-control-key-v1",
   /** Key for verification phrases */
   VERIFICATION_KEY: "ofa-verification-key-v1",
 } as const;
