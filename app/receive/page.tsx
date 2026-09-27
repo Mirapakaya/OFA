@@ -19,11 +19,9 @@ export default function ReceivePage() {
       return;
     }
 
-    // Try same-device pairing via BroadcastChannel
     const localPairing = createReceiverPairing(
       () => {
         setStep("connecting");
-        // A local sender was found — proceed with local connection
       },
     );
     cleanupRef.current.push(() => localPairing.destroy());
@@ -41,7 +39,7 @@ export default function ReceivePage() {
       {step === "waiting" && (
         <div className="receive-connect">
           <p>Connect a sending device.</p>
-          <p style={{ fontSize: "13px", color: "var(--muted)", marginTop: "8px" }}>
+          <p className="text-xs text-muted mt-3">
             Open a secure link from the sender, or wait for a sender on this device.
           </p>
         </div>
@@ -57,7 +55,7 @@ export default function ReceivePage() {
       {step === "connected" && (
         <div>
           <p className="status-label">Connected</p>
-          <p style={{ fontSize: "14px", color: "var(--muted)" }}>Waiting for files…</p>
+          <p className="text-small text-muted">Waiting for files…</p>
         </div>
       )}
 
@@ -72,7 +70,7 @@ export default function ReceivePage() {
         <div className="transfer-complete">
           <p className="status-label">Transfer complete</p>
           <p className="transfer-complete__check">All files received.</p>
-          <p style={{ fontSize: "14px", color: "var(--muted)", marginBottom: "16px" }}>
+          <p className="text-small text-muted mb-4">
             The transfer session has ended.
           </p>
         </div>
@@ -80,8 +78,8 @@ export default function ReceivePage() {
 
       {step === "error" && (
         <div>
-          <p className="status-label" style={{ color: "var(--error)" }}>Connection failed</p>
-          <p style={{ fontSize: "14px", color: "var(--muted)", marginBottom: "16px" }}>{error}</p>
+          <p className="status-label text-error">Connection failed</p>
+          <p className="text-small text-muted mb-4">{error}</p>
           <button className="button button-secondary" onClick={() => window.location.reload()}>
             Try again
           </button>
