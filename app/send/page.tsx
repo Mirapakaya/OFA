@@ -45,9 +45,11 @@ export default function SendPage() {
 
   // Cleanup on unmount
   useEffect(() => {
+    const cleanup = cleanupRef.current;
+    const abort = abortRef.current;
     return () => {
-      cleanupRef.current.forEach((fn) => fn());
-      abortRef.current?.abort();
+      cleanup.forEach((fn) => fn());
+      abort?.abort();
     };
   }, []);
 
@@ -109,7 +111,7 @@ export default function SendPage() {
       // Also try local pairing via BroadcastChannel
       const localPairing = createSenderPairing(
         pairingSession.sessionId,
-        (_channel, _receiverSessionId) => {
+        () => {
           // Local peer found — could switch to local signaling
         },
       );
@@ -165,7 +167,7 @@ export default function SendPage() {
       setStep("error");
       setError(err instanceof Error ? err.message : "Something went wrong");
     }
-  }, [files]);
+  }, [files, doKeyExchangeAndSend]);
 
   /** Perform the ECDH key exchange over the DataChannel, then start sending files */
   const doKeyExchangeAndSend = useCallback(async (
