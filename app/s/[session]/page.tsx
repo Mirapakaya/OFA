@@ -224,7 +224,7 @@ export default function SessionPage({
       {step === "error" && (
         <div>
           <p className="text-small text-muted mb-4">{error}</p>
-          <Link href="/" className="button button-secondary">Go back</Link>
+          <Link href="/" className="button secondary">Go back</Link>
         </div>
       )}
 
