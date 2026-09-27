@@ -51,7 +51,7 @@ export default function SessionPage({
       cleanupRef.current.forEach((fn) => fn());
       cancelRef.current?.();
     };
-  }, [sessionId]);
+  }, [sessionId, initConnection]);
 
   const initConnection = useCallback(async function(sid: string, secret: string) {
     
