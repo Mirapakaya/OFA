@@ -54,8 +54,8 @@ export async function encryptChunk(
   const ciphertext = await crypto.subtle.encrypt(
     {
       name: "AES-GCM",
-      iv: nonce,
-      additionalData: aad,
+      iv: nonce as Uint8Array<ArrayBuffer>,
+      additionalData: aad as Uint8Array<ArrayBuffer>,
       tagLength: 128, // 128-bit authentication tag
     },
     key,
@@ -99,8 +99,8 @@ export async function decryptChunk(
     const plaintext = await crypto.subtle.decrypt(
       {
         name: "AES-GCM",
-        iv: chunk.nonce,
-        additionalData: chunk.aad,
+        iv: chunk.nonce as Uint8Array<ArrayBuffer>,
+        additionalData: chunk.aad as Uint8Array<ArrayBuffer>,
         tagLength: 128,
       },
       key,
@@ -127,7 +127,7 @@ export function serializeChunk(chunk: EncryptedChunk): ArrayBuffer {
   buffer.set(chunk.aad, 16);
   buffer.set(new Uint8Array(chunk.ciphertext), 24);
 
-  return buffer.buffer;
+  return buffer.buffer as ArrayBuffer;
 }
 
 /**
