@@ -14,7 +14,7 @@ const nextConfig: NextConfig = {
           key: "Content-Security-Policy",
           value: [
             "default-src 'self'",
-            "script-src 'self' 'unsafe-eval' 'nonce-%NEXT_NONCE%'",
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
             "style-src 'self' 'unsafe-inline'",
             "object-src 'none'",
             "base-uri 'self'",
