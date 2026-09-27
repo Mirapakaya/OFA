@@ -12,10 +12,10 @@ export default function HomePage() {
             Select files. Connect directly. Transfer. No accounts, no storage, no tracking.
           </p>
           <div className="hero-actions">
-            <Link href="/send" className="button button-primary">
+            <Link href="/send" className="button primary">
               Send files
             </Link>
-            <Link href="/receive" className="button button-secondary">
+            <Link href="/receive" className="button secondary">
               Receive files
             </Link>
           </div>
@@ -97,44 +97,46 @@ export default function HomePage() {
         </section>
 
         {/* FAQ */}
-        <section className="faq">
-          <h2 className="section-title">Questions</h2>
-          <details>
-            <summary>Where are my files stored?</summary>
-            <p>
-              Nowhere permanently. Files are encrypted in the sender&#x2019;s browser and sent
-              directly to the receiver. After the transfer completes, no copy exists anywhere.
-            </p>
-          </details>
-          <details>
-            <summary>Can OFA read my files?</summary>
-            <p>
-              No. The encryption key is derived from a secret that only the two devices know.
-              OFA&#x2019;s signaling server only helps devices find each other &mdash; it never
-              sees file content.
-            </p>
-          </details>
-          <details>
-            <summary>What happens if the connection drops?</summary>
-            <p>
-              The transfer session ends. You&#x2019;ll need to start a new transfer. Partially
-              received files are not saved &mdash; this is by design.
-            </p>
-          </details>
-          <details>
-            <summary>Does OFA work on mobile?</summary>
-            <p>
-              Yes. OFA works in any modern browser that supports WebRTC, including mobile
-              Chrome, Firefox, and Safari.
-            </p>
-          </details>
-          <details>
-            <summary>What&#x2019;s the maximum file size?</summary>
-            <p>
-              There&#x2019;s no hard limit. Very large files work but may be slow on poor
-              connections. The transfer happens in chunks, so memory usage stays reasonable.
-            </p>
-          </details>
+        <section className="faq-section">
+          <h2>Questions</h2>
+          <div className="faq-list">
+            <details>
+              <summary>Where are my files stored?</summary>
+              <p>
+                Nowhere permanently. Files are encrypted in the sender&#x2019;s browser and sent
+                directly to the receiver. After the transfer completes, no copy exists anywhere.
+              </p>
+            </details>
+            <details>
+              <summary>Can OFA read my files?</summary>
+              <p>
+                No. The encryption key is derived from a secret that only the two devices know.
+                OFA&#x2019;s signaling server only helps devices find each other &mdash; it never
+                sees file content.
+              </p>
+            </details>
+            <details>
+              <summary>What happens if the connection drops?</summary>
+              <p>
+                The transfer session ends. You&#x2019;ll need to start a new transfer. Partially
+                received files are not saved &mdash; this is by design.
+              </p>
+            </details>
+            <details>
+              <summary>Does OFA work on mobile?</summary>
+              <p>
+                Yes. OFA works in any modern browser that supports WebRTC, including mobile
+                Chrome, Firefox, and Safari.
+              </p>
+            </details>
+            <details>
+              <summary>What&#x2019;s the maximum file size?</summary>
+              <p>
+                There&#x2019;s no hard limit. Very large files work but may be slow on poor
+                connections. The transfer happens in chunks, so memory usage stays reasonable.
+              </p>
+            </details>
+          </div>
         </section>
 
         {/* CTA */}
@@ -144,10 +146,10 @@ export default function HomePage() {
             No account. No storage. No tracking. Just secure, private file sharing.
           </p>
           <div className="hero-actions">
-            <Link href="/send" className="button button-primary">
+            <Link href="/send" className="button primary">
               Send files
             </Link>
-            <Link href="/receive" className="button button-secondary">
+            <Link href="/receive" className="button secondary">
               Receive files
             </Link>
           </div>
