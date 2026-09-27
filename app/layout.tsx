@@ -53,7 +53,7 @@ export default function RootLayout({
                 <Link href="/about">About</Link>
               </div>
               <div className="header__cta">
-                <Link href="/send" className="button button-primary">
+                <Link href="/send" className="button primary">
                   Start transfer
                 </Link>
               </div>
@@ -64,37 +64,31 @@ export default function RootLayout({
           {children}
         </main>
         <footer className="footer" role="contentinfo">
-          <div className="footer__inner">
-            <div className="footer__grid">
-              <div>
-                <p className="footer__column-title">Resources</p>
-                <div className="footer__column-links">
-                  <Link href="/privacy">Privacy</Link>
-                  <Link href="/security">Security</Link>
-                </div>
+          <div className="footer-content">
+            <nav className="columns" aria-label="Footer">
+              <div className="column">
+                <div className="column-title">Resources</div>
+                <Link href="/privacy">Privacy</Link>
+                <Link href="/security">Security</Link>
               </div>
-              <div>
-                <p className="footer__column-title">Community</p>
-                <div className="footer__column-links">
-                  <a
-                    href="https://github.com/altercpre/OFA"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    GitHub
-                  </a>
-                </div>
+              <div className="column">
+                <div className="column-title">Community</div>
+                <a
+                  href="https://github.com/altercpre/OFA"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  GitHub
+                </a>
               </div>
-              <div>
-                <p className="footer__column-title">Legal</p>
-                <div className="footer__column-links">
-                  <Link href="/privacy">Terms</Link>
-                </div>
+              <div className="column">
+                <div className="column-title">Legal</div>
+                <Link href="/privacy">Terms</Link>
               </div>
+            </nav>
+            <div className="credit">
+              made by <a href="https://github.com/altercpre" target="_blank" rel="noopener noreferrer">altercpre</a>
             </div>
-            <p className="footer__note">
-              made by altercpre
-            </p>
           </div>
         </footer>
       </body>
