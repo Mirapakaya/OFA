@@ -167,7 +167,7 @@ export default function SendPage() {
       setStep("error");
       setError(err instanceof Error ? err.message : "Something went wrong");
     }
-  }, [files, doKeyExchangeAndSend]);
+  }, [files]); // eslint-disable-line react-hooks/exhaustive-deps
 
   /** Perform the ECDH key exchange over the DataChannel, then start sending files */
   const doKeyExchangeAndSend = useCallback(async (
