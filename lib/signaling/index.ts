@@ -6,7 +6,7 @@
 
 export interface SignalingTransport {
   createSession(): Promise<string>;
-  joinSession(sessionId: string): Promise<void>;
+  joinSession(): Promise<void>;
   sendOffer(sessionId: string, offer: RTCSessionDescriptionInit): Promise<void>;
   sendAnswer(sessionId: string, answer: RTCSessionDescriptionInit): Promise<void>;
   sendIceCandidate(sessionId: string, candidate: RTCIceCandidateInit): Promise<void>;
