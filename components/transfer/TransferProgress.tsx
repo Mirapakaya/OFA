@@ -54,7 +54,7 @@ export function TransferProgress({
       )}
 
       <button
-        className="button button-secondary"
+        className="button secondary"
         onClick={onCancel}
       >
         Cancel transfer
