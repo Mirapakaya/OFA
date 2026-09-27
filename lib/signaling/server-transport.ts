@@ -134,7 +134,7 @@ export function createServerSignalingTransport(
       return sessionId;
     },
 
-    async joinSession(_sid: string): Promise<void> {
+    async joinSession(): Promise<void> {
       // Start polling for the session
       startPolling();
     },
