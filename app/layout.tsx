@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import Link from "next/link";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -42,18 +43,18 @@ export default function RootLayout({
         </a>
         <header className="header">
           <nav aria-label="Main navigation">
-            <a href="/" className="header__logo">
+            <Link href="/" className="header__logo">
               OFA
-            </a>
+            </Link>
             <ul className="header__nav" role="list">
               <li>
-                <a href="/send">Send</a>
+                <Link href="/send">Send</Link>
               </li>
               <li>
-                <a href="/receive">Receive</a>
+                <Link href="/receive">Receive</Link>
               </li>
               <li>
-                <a href="/about">About</a>
+                <Link href="/about">About</Link>
               </li>
             </ul>
           </nav>
@@ -63,8 +64,8 @@ export default function RootLayout({
         </main>
         <footer className="footer">
           <nav aria-label="Footer navigation">
-            <a href="/privacy">Privacy</a>
-            <a href="/security">Security</a>
+            <Link href="/privacy">Privacy</Link>
+            <Link href="/security">Security</Link>
           </nav>
           <p className="footer__note">
             No accounts. No storage. No tracking.
