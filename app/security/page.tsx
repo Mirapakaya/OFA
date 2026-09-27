@@ -107,7 +107,7 @@ export default function SecurityPage() {
         <h2>Reporting a vulnerability</h2>
         <p>
           If you find a security issue, please report it responsibly. Open a
-          GitHub issue on the Mirapakaya/OFA repository with details.
+          GitHub issue on the altercpre/OFA repository with details.
         </p>
       </section>
     </div>
