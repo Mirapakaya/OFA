@@ -210,8 +210,7 @@ export function monitorConnectionTimeout(
 ): () => void {
   const timer = setTimeout(() => {
     if (
-      pc.connectionState !== "connected" &&
-      pc.connectionState !== "completed"
+      pc.connectionState !== "connected"
     ) {
       onTimeout();
     }
