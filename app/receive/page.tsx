@@ -2,8 +2,6 @@
 
 import { useState, useEffect, useRef } from "react";
 import { createReceiverPairing } from "@/lib/pairing/broadcast";
-import { createLocalSignalingTransport } from "@/lib/signaling";
-import { generateKeyPair } from "@/lib/crypto";
 import { checkBrowserSupport, createError } from "@/lib/error";
 
 type ReceiveStep = "waiting" | "connecting" | "connected" | "transferring" | "complete" | "error";
