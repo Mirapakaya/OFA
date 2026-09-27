@@ -80,7 +80,7 @@ export default function ReceivePage() {
         <div>
           <p className="status-label text-error">Connection failed</p>
           <p className="text-small text-muted mb-4">{error}</p>
-          <button className="button button-secondary" onClick={() => window.location.reload()}>
+          <button className="button secondary" onClick={() => window.location.reload()}>
             Try again
           </button>
         </div>
