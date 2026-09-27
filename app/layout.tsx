@@ -27,7 +27,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#0a0a0a",
+  themeColor: "#0d1c64",
 };
 
 export default function RootLayout({
@@ -41,35 +41,61 @@ export default function RootLayout({
         <a href="#main" className="skip-link">
           Skip to content
         </a>
-        <header className="header">
-          <nav aria-label="Main navigation">
-            <Link href="/" className="header__logo">
+        <header className="header" role="banner">
+          <div className="header__inner">
+            <Link href="/" className="header__logo" aria-label="OFA home">
               OFA
             </Link>
-            <ul className="header__nav" role="list">
-              <li>
+            <nav aria-label="Main navigation" className="header__nav">
+              <div className="header__nav-links" role="list">
                 <Link href="/send">Send</Link>
-              </li>
-              <li>
                 <Link href="/receive">Receive</Link>
-              </li>
-              <li>
                 <Link href="/about">About</Link>
-              </li>
-            </ul>
-          </nav>
+              </div>
+              <div className="header__cta">
+                <Link href="/send" className="button button-primary">
+                  Start transfer
+                </Link>
+              </div>
+            </nav>
+          </div>
         </header>
-        <main id="main" className="main">
+        <main id="main" className="main" role="main">
           {children}
         </main>
-        <footer className="footer">
-          <nav aria-label="Footer navigation">
-            <Link href="/privacy">Privacy</Link>
-            <Link href="/security">Security</Link>
-          </nav>
-          <p className="footer__note">
-            No accounts. No storage. No tracking.
-          </p>
+        <footer className="footer" role="contentinfo">
+          <div className="footer__inner">
+            <div className="footer__grid">
+              <div>
+                <p className="footer__column-title">Resources</p>
+                <div className="footer__column-links">
+                  <Link href="/privacy">Privacy</Link>
+                  <Link href="/security">Security</Link>
+                </div>
+              </div>
+              <div>
+                <p className="footer__column-title">Community</p>
+                <div className="footer__column-links">
+                  <a
+                    href="https://github.com/altercpre/OFA"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    GitHub
+                  </a>
+                </div>
+              </div>
+              <div>
+                <p className="footer__column-title">Legal</p>
+                <div className="footer__column-links">
+                  <Link href="/privacy">Terms</Link>
+                </div>
+              </div>
+            </div>
+            <p className="footer__note">
+              made by altercpre
+            </p>
+          </div>
         </footer>
       </body>
     </html>
