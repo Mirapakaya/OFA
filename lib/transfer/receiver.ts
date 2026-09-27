@@ -5,9 +5,9 @@
 // reconstructs files, and triggers browser downloads.
 // Metadata is received through the encrypted peer channel.
 
-import { decryptChunk, deserializeChunk, type EncryptedChunk } from "@/lib/crypto/cipher";
+import { decryptChunk, deserializeChunk } from "@/lib/crypto/cipher";
 import { reconstructFile, downloadFile, type FileMetadata } from "./index";
-import { formatSize, formatSpeed, formatETA, sanitizeFileName } from "./file-utils";
+import { formatSize, formatETA, sanitizeFileName } from "./file-utils";
 
 export interface ReceiveProgress {
   fileName: string;
