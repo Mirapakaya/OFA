@@ -29,10 +29,10 @@ export function PairingView({ session, onCancel }: PairingViewProps) {
     return (
       <div className="pairing-view">
         <p className="status-label">Session expired</p>
-        <p style={{ fontSize: "14px", color: "var(--muted)" }}>
+        <p className="text-small text-muted">
           The pairing session timed out. Create a new transfer.
         </p>
-        <button className="button button-secondary" onClick={onCancel}>
+        <button className="button secondary" onClick={onCancel}>
           Try again
         </button>
       </div>
@@ -43,7 +43,7 @@ export function PairingView({ session, onCancel }: PairingViewProps) {
     return (
       <div className="pairing-view">
         <p className="status-label">Connected</p>
-        <p style={{ fontSize: "14px", color: "var(--muted)" }}>
+        <p className="text-small text-muted">
           Secure connection established.
         </p>
       </div>
@@ -53,23 +53,23 @@ export function PairingView({ session, onCancel }: PairingViewProps) {
   return (
     <div className="pairing-view">
       <p className="status-label">Waiting for another device</p>
-      <p style={{ fontSize: "14px", color: "var(--muted)", marginBottom: "24px" }}>
+      <p className="text-small text-muted mb-4">
         Scan the code or open the secure link.
       </p>
 
-      <div style={{ display: "flex", justifyContent: "center", marginBottom: "24px" }}>
+      <div className="text-center mb-4">
         <QRCode data={session.url} size={200} />
       </div>
 
-      <div style={{ display: "flex", gap: "12px", justifyContent: "center" }}>
+      <div className="hero-actions">
         <button
-          className="button button-secondary"
+          className="button secondary"
           onClick={copyLink}
         >
           {copied ? "Copied" : "Copy secure link"}
         </button>
         <button
-          className="button button-secondary"
+          className="button secondary"
           onClick={onCancel}
         >
           Cancel
