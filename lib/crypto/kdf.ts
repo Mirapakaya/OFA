@@ -39,7 +39,7 @@ export async function deriveKey(
 
   const prk = await crypto.subtle.importKey(
     "raw",
-    saltBytes,
+    saltBytes as Uint8Array<ArrayBuffer>,
     { name: "HMAC", hash: "SHA-256" },
     false,
     ["sign"],
@@ -63,7 +63,7 @@ export async function deriveKey(
   t1Input.set(info);
   t1Input[info.length] = 1; // Counter byte
 
-  const okm = await crypto.subtle.sign("HMAC", prkKey, t1Input);
+  const okm = await crypto.subtle.sign("HMAC", prkKey, t1Input as Uint8Array<ArrayBuffer>);
 
   // Step 3: Import derived key material as AES-256-GCM key
   const encryptionKey = await crypto.subtle.importKey(
@@ -91,7 +91,7 @@ export async function deriveVerificationPhrase(
 
   const prk = await crypto.subtle.importKey(
     "raw",
-    saltBytes,
+    saltBytes as Uint8Array<ArrayBuffer>,
     { name: "HMAC", hash: "SHA-256" },
     false,
     ["sign"],
@@ -110,7 +110,7 @@ export async function deriveVerificationPhrase(
   t1Input.set(info);
   t1Input[info.length] = 1;
   const phraseBytes = new Uint8Array(
-    await crypto.subtle.sign("HMAC", prkKey, t1Input),
+    await crypto.subtle.sign("HMAC", prkKey, t1Input as Uint8Array<ArrayBuffer>),
   );
 
   // Map bytes to word lists for a readable phrase
