@@ -25,36 +25,7 @@ export default function SessionPage({
   const cleanupRef = useRef<(() => void)[]>([]);
   const cancelRef = useRef<(() => void) | null>(null);
 
-  useEffect(() => {
-    // Check browser support
-    const unsupported = checkBrowserSupport();
-    if (unsupported) {
-      setStep("error");
-      setError(createError(unsupported).userMessage);
-      return;
-    }
-
-    // Extract secret from URL fragment
-    const fullUrl = window.location.href;
-    const parsed = parsePairingUrl(fullUrl);
-
-    if (!parsed) {
-      setStep("error");
-      setError("The session link is not valid. Ask the sender for a new link.");
-      return;
-    }
-
-    // Start connection process
-    initConnection(parsed.sessionId, parsed.secret);
-
-    return () => {
-      cleanupRef.current.forEach((fn) => fn());
-      cancelRef.current?.();
-    };
-  }, [sessionId, initConnection]);
-
   const initConnection = useCallback(async function(sid: string, secret: string) {
-    
     try {
       setStep("connecting");
 
@@ -82,7 +53,7 @@ export default function SessionPage({
       pc.ondatachannel = (event) => {
         const channel = event.channel;
         channel.binaryType = "arraybuffer";
-        
+
         channel.onopen = () => {
           channel.bufferedAmountLowThreshold = 4 * 1024 * 1024;
           doKeyExchangeAndReceive(channel, keyPair, secret);
@@ -115,6 +86,34 @@ export default function SessionPage({
       setError(err instanceof Error ? err.message : "Something went wrong");
     }
   }, [sessionId]);
+
+  useEffect(() => {
+    // Check browser support
+    const unsupported = checkBrowserSupport();
+    if (unsupported) {
+      setStep("error");
+      setError(createError(unsupported).userMessage);
+      return;
+    }
+
+    // Extract secret from URL fragment
+    const fullUrl = window.location.href;
+    const parsed = parsePairingUrl(fullUrl);
+
+    if (!parsed) {
+      setStep("error");
+      setError("The session link is not valid. Ask the sender for a new link.");
+      return;
+    }
+
+    // Start connection process
+    initConnection(parsed.sessionId, parsed.secret);
+
+    return () => {
+      cleanupRef.current.forEach((fn) => fn());
+      cancelRef.current?.();
+    };
+  }, [sessionId, initConnection]);
 
   /** Perform the ECDH key exchange over the DataChannel, then start receiving files */
   async function doKeyExchangeAndReceive(
