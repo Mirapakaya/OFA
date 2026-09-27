@@ -12,7 +12,7 @@ interface PairingViewProps {
 type PairingStep = "waiting" | "connected" | "expired";
 
 export function PairingView({ session, onCancel }: PairingViewProps) {
-  const [step, setStep] = useState<PairingStep>("waiting");
+  const [step] = useState<PairingStep>("waiting");
   const [copied, setCopied] = useState(false);
 
   const copyLink = useCallback(async () => {
