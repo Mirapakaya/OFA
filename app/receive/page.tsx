@@ -21,15 +21,16 @@ export default function ReceivePage() {
 
     // Try same-device pairing via BroadcastChannel
     const localPairing = createReceiverPairing(
-      (_channel, senderSessionId) => {
+      () => {
         setStep("connecting");
         // A local sender was found — proceed with local connection
       },
     );
     cleanupRef.current.push(() => localPairing.destroy());
 
+    const cleanup = cleanupRef.current;
     return () => {
-      cleanupRef.current.forEach((fn) => fn());
+      cleanup.forEach((fn) => fn());
     };
   }, []);
 
