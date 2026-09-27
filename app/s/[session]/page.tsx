@@ -34,7 +34,7 @@ export default function SessionPage({
 
       // Create signaling transport
       const signaling = createServerSignalingTransport(sid);
-      await signaling.joinSession(sid);
+      await signaling.joinSession();
       cleanupRef.current.push(() => signaling.close());
 
       // Create peer connection (receiver side)
