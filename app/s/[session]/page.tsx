@@ -85,7 +85,7 @@ export default function SessionPage({
       setStep("error");
       setError(err instanceof Error ? err.message : "Something went wrong");
     }
-  }, [sessionId]);
+  }, []);
 
   useEffect(() => {
     // Check browser support
@@ -109,9 +109,11 @@ export default function SessionPage({
     // Start connection process
     initConnection(parsed.sessionId, parsed.secret);
 
+    const cleanup = cleanupRef.current;
+    const cancel = cancelRef.current;
     return () => {
-      cleanupRef.current.forEach((fn) => fn());
-      cancelRef.current?.();
+      cleanup.forEach((fn) => fn());
+      cancel?.();
     };
   }, [sessionId, initConnection]);
 
