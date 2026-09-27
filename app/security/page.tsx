@@ -44,10 +44,10 @@ export default function SecurityPage() {
           independent keys with different domain labels:
         </p>
         <ul>
-          <li><strong>Encryption key</strong> — encrypts file chunks</li>
-          <li><strong>Metadata key</strong> — encrypts file metadata</li>
-          <li><strong>Control key</strong> — encrypts protocol messages</li>
-          <li><strong>Verification key</strong> — derives a short verification
+          <li><strong>Encryption key</strong> &mdash; encrypts file chunks</li>
+          <li><strong>Metadata key</strong> &mdash; encrypts file metadata</li>
+          <li><strong>Control key</strong> &mdash; encrypts protocol messages</li>
+          <li><strong>Verification key</strong> &mdash; derives a short verification
             phrase</li>
         </ul>
         <p>
@@ -59,7 +59,7 @@ export default function SecurityPage() {
         <h2>Verification phrase</h2>
         <p>
           After key agreement, both devices derive a short verification phrase
-          (for example, &ldquo;oak — 27 — stone&rdquo;). If both devices
+          (for example, &ldquo;oak &mdash; 27 &mdash; stone&rdquo;). If both devices
           show the same phrase, the key exchange has not been tampered with.
         </p>
         <p>
@@ -85,18 +85,18 @@ export default function SecurityPage() {
         <h2>What OFA does not protect against</h2>
         <ul>
           <li>
-            <strong>Compromised devices</strong> — If malware is running on
+            <strong>Compromised devices</strong> &mdash; If malware is running on
             your device, it can access files before encryption or after
             decryption.
           </li>
           <li>
-            <strong>Active signaling compromise</strong> — If the signaling
+            <strong>Active signaling compromise</strong> &mdash; If the signaling
             server is compromised, an attacker could facilitate a
             man-in-the-middle attack. The verification phrase is the defense:
             if the phrases do not match, abort the transfer.
           </li>
           <li>
-            <strong>Network metadata</strong> — The fact that a transfer
+            <strong>Network metadata</strong> &mdash; The fact that a transfer
             occurred between two IP addresses is visible to network observers.
             The content is encrypted.
           </li>
