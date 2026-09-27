@@ -9,7 +9,6 @@ import { createSenderPairing } from "@/lib/pairing/broadcast";
 import { createServerSignalingTransport } from "@/lib/signaling";
 import { generateKeyPair, performKeyAgreement, deriveSessionKeys, deriveVerificationPhrase, type KeyPair } from "@/lib/crypto";
 import { createPeerConnection, createOfferAndSignal, closePeerConnection } from "@/lib/webrtc/connection";
-import { closeChannel } from "@/lib/webrtc/data-channel";
 import { sendFiles, type SendProgress } from "@/lib/transfer/sender";
 import { validateFiles, formatSize } from "@/lib/transfer/file-utils";
 import { checkBrowserSupport, createError } from "@/lib/error";
