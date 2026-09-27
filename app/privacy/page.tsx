@@ -52,9 +52,9 @@ export default function PrivacyPage() {
         <h2>Network requests</h2>
         <p>OFA makes network requests only to:</p>
         <ul>
-          <li>The OFA signaling endpoint — to exchange connection information
+          <li>The OFA signaling endpoint &mdash; to exchange connection information
             during pairing (deleted after 5 minutes)</li>
-          <li>STUN servers — standard WebRTC infrastructure to help devices
+          <li>STUN servers &mdash; standard WebRTC infrastructure to help devices
             find each other&apos;s network address</li>
         </ul>
         <p>
