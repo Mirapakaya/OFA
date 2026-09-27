@@ -118,7 +118,7 @@ export function destroyKeyPair(keyPair: KeyPair): void {
   // keys are held in the browser's native crypto layer which
   // manages their lifecycle.
   // We null out the references to help GC.
-  (keyPair as Record<string, unknown>).publicKey = null;
-  (keyPair as Record<string, unknown>).privateKey = null;
-  (keyPair as Record<string, unknown>).publicKeyBytes = null;
+  (keyPair as unknown as Record<string, unknown>).publicKey = null;
+  (keyPair as unknown as Record<string, unknown>).privateKey = null;
+  (keyPair as unknown as Record<string, unknown>).publicKeyBytes = null;
 }
